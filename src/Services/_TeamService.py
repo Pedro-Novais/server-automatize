@@ -1,10 +1,12 @@
 from flask import jsonify
 
-def get_team():
-    return jsonify({'retornei': 'sim'})
+class TeamService:
 
-def create_team(request):
-    pass
+    def get(request):
+        return jsonify({'retornei': 'sim'})
 
-def put_team(request):
-    pass
+    def create(request):
+        pass
+
+    def update(request): 
+        pass

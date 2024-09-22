@@ -112,7 +112,7 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
-    def update_password(user, request):
+    def update_password(user, request) -> dict:
         try:
             data = request.get_json()
 
@@ -166,7 +166,7 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
-    def delete_user(user):
+    def delete_user(user) -> dict:
         try:
 
             user_repo = UserRepository(g.db)

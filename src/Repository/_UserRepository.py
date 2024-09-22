@@ -4,7 +4,7 @@ class UserRepository:
 
     def get_user(self, query_filter, projection):
         user = self.collection.find_one(query_filter, projection)
-        return user
+        return user 
 
     def insert_user(self, user):
         self.collection.insert_one(user)
@@ -15,6 +15,4 @@ class UserRepository:
 
     def delete_user(self, query_filter):
         delete = self.collection.delete_one(query_filter)
-        
         return delete
-    
