@@ -1,5 +1,5 @@
-from flask import g, jsonify
-
+from flask import Request, g, jsonify
+from bson import ObjectId
 from pymongo.errors import PyMongoError
 
 from CustomExceptions import (
@@ -22,10 +22,15 @@ from .utils.valdiatorTeam import valdiator_create_team
 
 class TeamService:
 
-    def get(request):
-        return jsonify({'retornei': 'sim'})
+    def get(user: ObjectId) -> dict:
+        try:
+            pass
 
-    def create(request, user):
+            return jsonify({'retornei': 'sim'})
+        except Exception as e:
+            return jsonify({"error": "Internal server error to connect in database: {}".format(str(e))}), 500
+
+    def create(request: Request, user: ObjectId) -> dict:
         try:
             data = request.get_json()
 
@@ -59,19 +64,15 @@ class TeamService:
             if team_exist:
                 raise TeamAlreadyExist("Nome informado para sua equipe já está em uso!") 
 
-            boss = str(user)
-
             team = Team(
                 teamName= data.get('name'),
-                boss=boss,
+                boss= user,
                 projects= boss_exist.get('project'),
             )
 
             user_team_repo = UserTeamRepository(
                 db=g.db,
                 client=g.client,
-                user_repo=user_repo,
-                team_repo=team_repo
             )
 
             filter_update_user = {
@@ -88,7 +89,7 @@ class TeamService:
                 query_user=query_update_user
             )
 
-            return jsonify({'msg': 'Equipe criada com sucesso!', 'team': team.to_dict()}), 200
+            return jsonify({'msg': 'Equipe criada com sucesso!'}), 200
         
         except PyMongoError as e:
             return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500

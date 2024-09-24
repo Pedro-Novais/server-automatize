@@ -7,8 +7,8 @@ team_route = Blueprint('team', __name__)
 
 @team_route.route('/', methods=['GET'])
 @token_required
-def get():
-    response = TeamService.get()
+def get(userId):
+    response = TeamService.get(user=userId)
     return response
 
 @team_route.route('/', methods=['POST'])

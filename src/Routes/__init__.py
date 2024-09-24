@@ -1,4 +1,4 @@
-from flask import Blueprint, request, g
+from flask import Blueprint, g, jsonify
 from config.database import init_connect
 from .user import user_route
 from .login import login_route
@@ -15,9 +15,17 @@ def init_routes(app):
 
     @app.before_request
     def before_request():
-        g.db, g.client = init_connect()
+        try:
+            g.db, g.client = init_connect()
+        
+        except Exception as e:
+             return jsonify({"error": "Internal server error to connect in database: {}".format(str(e))}), 500
 
     @app.teardown_request
     def teardown_request(exception):
-            if hasattr(g, 'db'):
-                g.db.client.close()
+            try:
+                if hasattr(g, 'db'):
+                    g.db.client.close()
+
+            except Exception as e:
+                return jsonify({"error": "Internal server error to disconnect at database: {}".format(str(e))}), 500

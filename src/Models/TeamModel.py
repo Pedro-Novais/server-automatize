@@ -1,3 +1,4 @@
+from bson import ObjectId
 from datetime import datetime
 
 class Team:
@@ -5,7 +6,7 @@ class Team:
     def __init__(
             self,
             teamName: str,
-            boss: str,
+            boss: ObjectId,
             members: list = [],
             projects: list = [],
             status: bool = True,

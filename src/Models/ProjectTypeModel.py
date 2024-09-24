@@ -7,7 +7,7 @@ class Project:
             name: str,
             description: str,
             type: int,
-            structure: object,
+            structure: dict,
             status: bool = True,
             created_at: str = datetime.now(),
             last_update: str = datetime.now()
