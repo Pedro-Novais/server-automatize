@@ -1,5 +1,11 @@
 from flask import jsonify
-from pymongo.errors import PyMongoError
+
+from pymongo.errors import (
+    OperationFailure, ConfigurationError, ConnectionFailure, InvalidOperation,
+    DocumentTooLarge, PyMongoError
+)
+
+from CustomExceptions.OperationsDatabaseExceptions import OperationAggregationFailed
 
 class UserTeamRepository:
     def __init__(
@@ -37,7 +43,7 @@ class UserTeamRepository:
             except PyMongoError as e:
                 raise
 
-    def get_info_from_user_about_team(
+    def  get_info_from_user_about_team(
             self,
             user_id
     ):
@@ -69,5 +75,20 @@ class UserTeamRepository:
             result = list(self.db.users.aggregate(pipeline))
             return result
          
-        except Exception as e:
-            raise
+        except OperationFailure as e:
+            raise OperationAggregationFailed(f"Erro na operação de agregação: {str(e)}")
+        
+        except ConfigurationError as e:
+            raise OperationAggregationFailed(f"Erro de configuração: {str(e)}")
+        
+        except ConnectionFailure as e:
+            raise OperationAggregationFailed(f"Falha na conexão com o MongoDB: {str(e)}")
+        
+        except InvalidOperation as e:
+            raise OperationAggregationFailed(f"Operação inválida: {str(e)}")
+        
+        except DocumentTooLarge as e:
+            raise OperationAggregationFailed(f"O documento é muito grande: {str(e)}")
+        
+        except PyMongoError as e:
+            raise OperationAggregationFailed(f"Erro inesperado com MongoDB: {str(e)}")

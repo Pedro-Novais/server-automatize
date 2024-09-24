@@ -1,6 +1,9 @@
 from flask import Request, g, jsonify
 from bson import ObjectId
-from pymongo.errors import PyMongoError
+from pymongo.errors import (
+    OperationFailure, ConfigurationError, ConnectionFailure, InvalidOperation,
+    DocumentTooLarge, PyMongoError
+)
 
 from CustomExceptions import (
     TeamDatasNotSend,
@@ -8,7 +11,8 @@ from CustomExceptions import (
     BossTeamDoesExist,
     BossAlreadyGotTeam,
     TeamAlreadyExist,
-    BossAlreadyInsertTeam
+    BossAlreadyInsertTeam,
+    OperationAggregationFailed
 )
 from Repository import (
     TeamRepository,
@@ -34,8 +38,11 @@ class TeamService:
 
             return jsonify(team_info), 200
         
+        except OperationAggregationFailed as e:
+            return jsonify({"error": e.message}), e.status_code
+        
         except Exception as e:
-            return jsonify({"error": "Internal server error to connect in database: {}".format(str(e))}), 500
+            return jsonify({"error": "Internal server error in aggregation operation: {}".format(str(e))}), 500
 
     def create(request: Request, user: ObjectId) -> dict:
         try:

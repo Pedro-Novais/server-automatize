@@ -19,3 +19,7 @@ from CustomExceptions.TeamCustomExceptions import (
     BossAlreadyGotTeam,
     BossAlreadyInsertTeam
 )
+
+from CustomExceptions.OperationsDatabaseExceptions import(
+    OperationAggregationFailed
+)
