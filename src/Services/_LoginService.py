@@ -28,7 +28,10 @@ class LoginService():
                 "email": email
             }
 
-            find_user = user_repo.get_user(filter)
+
+            find_user = user_repo.get_user(
+                query_filter=filter
+                )
 
             if not find_user:
                 raise UserNotFound("Usuário não encontrado")

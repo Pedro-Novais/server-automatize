@@ -2,8 +2,8 @@ class UserRepository:
     def __init__(self, db):
         self.collection = db['users']
 
-    def get_user(self, query_filter):
-        user = self.collection.find_one(query_filter)
+    def get_user(self, query_filter, projection = None):
+        user = self.collection.find_one(query_filter, projection)
         return user 
 
     def insert_user(self, user):

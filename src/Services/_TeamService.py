@@ -24,9 +24,16 @@ class TeamService:
 
     def get(user: ObjectId) -> dict:
         try:
-            pass
+            user_team_repo = UserTeamRepository(
+                db=g.db, 
+                client=g.client
+                )
+            
+            result = user_team_repo.get_info_from_user_about_team(user_id=user)
+            team_info = result[0]["team_info"]
 
-            return jsonify({'retornei': 'sim'})
+            return jsonify(team_info), 200
+        
         except Exception as e:
             return jsonify({"error": "Internal server error to connect in database: {}".format(str(e))}), 500
 
@@ -42,7 +49,14 @@ class TeamService:
                 '_id': user
             }
 
-            boss_exist = user_repo.get_user(filter_user)
+            projection = {
+                'boss': 1,
+                'team': 1,
+                'project': 1,
+                'userName': 1
+            }
+
+            boss_exist = user_repo.get_user(query_filter=filter_user, projection=projection)
 
             if not boss_exist:
                 raise BossTeamDoesExist("Id do boss da equipe não foi identificado em nosso banco de dados")
@@ -67,6 +81,7 @@ class TeamService:
             team = Team(
                 teamName= data.get('name'),
                 boss= user,
+                boss_name=boss_exist.get('userName'),
                 projects= boss_exist.get('project'),
             )
 

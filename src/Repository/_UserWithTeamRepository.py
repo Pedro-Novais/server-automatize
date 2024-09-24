@@ -36,3 +36,38 @@ class UserTeamRepository:
                 
             except PyMongoError as e:
                 raise
+
+    def get_info_from_user_about_team(
+            self,
+            user_id
+    ):
+        try:
+            pipeline = [
+                {
+                    "$match": {"_id": user_id} 
+                },
+                {
+                    "$lookup": {
+                        "from": "teams", 
+                        "localField": "team", 
+                        "foreignField": "_id",  
+                        "as": "team_info"  
+                    }
+                },
+                {
+                    "$project": {  
+                        "team_info.teamName": 1,
+                        "team_info.bossName": 1,  
+                        "team_info.members": 1,  
+                        "team_info.projects": 1,
+                        "team_info.status": 1,
+                        "team_info.created_at": 1
+                    }
+                }
+            ]
+
+            result = list(self.db.users.aggregate(pipeline))
+            return result
+         
+        except Exception as e:
+            raise

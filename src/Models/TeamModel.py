@@ -7,6 +7,7 @@ class Team:
             self,
             teamName: str,
             boss: ObjectId,
+            boss_name: str,
             members: list = [],
             projects: list = [],
             status: bool = True,
@@ -15,6 +16,7 @@ class Team:
     ) -> None:
         self.name = teamName
         self.boss = boss
+        self.boss_name = boss_name
         self.members = members
         self.projects = projects
         self.created_at = created_at
@@ -26,6 +28,7 @@ class Team:
         return {
             "teamName": self.name,
             "boss": self.boss,
+            "bossName": self.boss_name,
             "members": self.members,
             "projects": self.projects,
             "status": self.status,
