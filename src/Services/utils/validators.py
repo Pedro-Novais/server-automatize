@@ -30,5 +30,3 @@ def validation_password(new: str) -> bool:
 
     if not re.match(regex, new):
         raise UserInvalidDataUpdate("Senha não está no padrão exigido")
-    
-# Validações da equipe

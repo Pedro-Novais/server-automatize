@@ -71,8 +71,7 @@ class UserService:
             user = User(
                 name= data.get("name"),
                 email= data.get("email"), 
-                password= password_hash, 
-                team= data.get("team")
+                password= password_hash
                 )
             
             user_repo.insert_user(user.to_dict())

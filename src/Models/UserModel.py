@@ -10,7 +10,7 @@ class User:
             email: str, 
             password: str,
             boss: bool = False,
-            project: object = {},
+            project: list = [],
             team: str = None,
             created_at: str = datetime.now(),
             last_update: str = datetime.now(),

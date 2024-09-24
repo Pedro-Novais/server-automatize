@@ -10,3 +10,12 @@ from CustomExceptions.LoginCustomExceptions import (
     UserCredentialsInvalids,
     UserDatasNotSend
 )
+
+from CustomExceptions.TeamCustomExceptions import (
+    TeamDatasNotSend,
+    TeamNotFound,
+    BossTeamDoesExist,
+    TeamAlreadyExist,
+    BossAlreadyGotTeam,
+    BossAlreadyInsertTeam
+)

@@ -6,8 +6,8 @@ class Team:
             self,
             teamName: str,
             boss: str,
-            members: list,
-            projects: list,
+            members: list = [],
+            projects: list = [],
             status: bool = True,
             created_at: str = datetime.now(),
             last_update: str = datetime.now(),
@@ -23,7 +23,7 @@ class Team:
     def to_dict(self) -> dict:
         """Converte o modelo para um dicionário, adequado para inserção no MongoDB"""
         return {
-            "team": self.name,
+            "teamName": self.name,
             "boss": self.boss,
             "members": self.members,
             "projects": self.projects,
