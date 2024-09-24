@@ -10,6 +10,7 @@ class User:
             email: str, 
             password: str,
             boss: bool = False,
+            project: object = {},
             team: str = None,
             created_at: str = datetime.now(),
             last_update: str = datetime.now(),
@@ -26,6 +27,7 @@ class User:
         self.password = password
         self.team = team
         self.boss = boss
+        self.project = project
         self.created_at = created_at
         self.last_update = last_update
 
@@ -37,6 +39,7 @@ class User:
             "password": self.password,
             "team": self.team,
             "boss": self.boss,
+            "project": self.project,
             "created_at:": self.created_at,
             "last_update": self.last_update,
         }

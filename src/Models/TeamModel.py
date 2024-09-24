@@ -7,7 +7,7 @@ class Team:
             teamName: str,
             boss: str,
             members: list,
-            projects: list = None,
+            projects: list,
             status: bool = True,
             created_at: str = datetime.now(),
             last_update: str = datetime.now(),

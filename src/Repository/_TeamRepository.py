@@ -3,15 +3,18 @@ class TeamRepository:
         self.db = db
         self.collection = self.db['teams']
     
-    def get_team(self, team_name: str) -> bool:
-        team = self.collection.find_one({"team": team_name})
+    def get_team(self, query_filter: dict) -> bool:
+        team = self.collection.find_one(query_filter)
         return team is not None
     
-    def insert_team(self):
-        pass
+    def insert_team(self, team):
+        insert = self.collection.insert_one(team)
+        return insert
 
-    def update_team():
-        pass
+    def update_team(self, query_filter, team):
+        update = self.collection.update_one(query_filter, team)
+        return update
 
-    def delete_team():
-        pass
+    def delete_team(self, query_filter):
+        delete = self.collection.delete_one(query_filter)
+        return delete

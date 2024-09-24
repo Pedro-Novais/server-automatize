@@ -5,6 +5,8 @@ from CustomExceptions import (
     UserInvalidDataUpdate
     )
 
+# Validações do usuário
+
 def validation_user_data(data: dict) -> None:
     name = data.get('name')
     email = data.get('email')
@@ -28,3 +30,5 @@ def validation_password(new: str) -> bool:
 
     if not re.match(regex, new):
         raise UserInvalidDataUpdate("Senha não está no padrão exigido")
+    
+# Validações da equipe
