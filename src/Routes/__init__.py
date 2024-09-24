@@ -15,7 +15,7 @@ def init_routes(app):
 
     @app.before_request
     def before_request():
-        g.db = init_connect()
+        g.db, g.client = init_connect()
 
     @app.teardown_request
     def teardown_request(exception):

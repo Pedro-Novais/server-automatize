@@ -1,5 +1,7 @@
 from flask import g, jsonify
 
+from pymongo.errors import PyMongoError
+
 from CustomExceptions import (
     TeamDatasNotSend,
     TeamNotFound,
@@ -10,7 +12,8 @@ from CustomExceptions import (
 )
 from Repository import (
     TeamRepository,
-    UserRepository
+    UserRepository,
+    UserTeamRepository
 )
 
 from Models import Team
@@ -64,12 +67,31 @@ class TeamService:
                 projects= boss_exist.get('project'),
             )
 
-            insert_team = team_repo.insert_team(team.to_dict())
+            user_team_repo = UserTeamRepository(
+                db=g.db,
+                client=g.client,
+                user_repo=user_repo,
+                team_repo=team_repo
+            )
 
-            if insert_team == None:
-                pass
+            filter_update_user = {
+                "_id": user
+            }
 
-            return jsonify({'msg': 'Equipe criada com sucesso', 'team': team.to_dict()}), 200
+            query_update_user = {
+                "$set": {"boss": True}
+            }
+
+            user_team_repo.update_boss_create_team(
+                query_team=team.to_dict(),
+                filter_user=filter_update_user,
+                query_user=query_update_user
+            )
+
+            return jsonify({'msg': 'Equipe criada com sucesso!', 'team': team.to_dict()}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
         
         except TeamDatasNotSend as e:
             return jsonify({"error": e.message}), e.status_code

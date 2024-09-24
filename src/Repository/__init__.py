@@ -1,2 +1,3 @@
 from Repository._TeamRepository import TeamRepository
 from Repository._UserRepository import UserRepository
+from Repository._UserWithTeamRepository import UserTeamRepository

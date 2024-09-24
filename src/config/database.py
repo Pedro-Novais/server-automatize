@@ -9,6 +9,6 @@ def init_connect():
         db = client['automatize']
         client.admin.command('ping')
         print("Conection with database, sucesfull")
-        return db
+        return db, client
     except Exception as e:
         print(e)
