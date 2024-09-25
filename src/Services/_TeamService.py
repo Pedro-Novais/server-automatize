@@ -20,9 +20,15 @@ from Repository import (
     UserTeamRepository
 )
 
-from Models import Team
+from Models import (
+    Team,
+    Members
+)
 
-from .utils.valdiatorTeam import valdiator_create_team
+from .utils.valdiatorTeam import (
+    valdiator_create_team,
+    validator_new_member
+)
 
 class TeamService:
 
@@ -136,3 +142,79 @@ class TeamService:
 
     def update(request): 
         pass
+
+    def add_member(request: Request, user: ObjectId) -> dict:
+        try:
+            data = request.get_json()
+
+            email = data.get('email')
+
+            if not email:
+                raise
+            
+            user_repo = UserRepository(db=g.db)
+
+            query_user = {
+                "email": email
+            }
+
+            filter_many_users = {
+                "$or":[
+                    {"email": email},
+                    {"_id": user}
+                ]
+            }
+
+            users_querys = list(user_repo.get_many_users(
+                query_filter=filter_many_users
+            ))
+
+            new_member, member_adding = validator_new_member(
+                data=users_querys,
+                email=email,
+                )
+
+            if not new_member.get('team') == None or new_member.get('boss'):
+                raise TeamDatasNotSend("Usuário já está em uma equipe ou possui uma!")
+            
+            member = Members(
+                id_member=new_member.get('_id'),
+                name=new_member.get('userName'),
+                email=new_member.get('email'),
+            )
+
+            user_team_repo = UserTeamRepository(g.db, g.client)
+            
+            query_team = {
+                "_id": member_adding.get('team')
+            }
+
+            filter_team = {
+                "$push": {"members": member.to_dict()}
+            }
+
+            query_user = {
+                "_id": new_member.get('_id')
+            }
+
+            filter_user = {
+                "$set": {"team": member_adding.get('team')}
+            }
+
+            user_team_repo.create_member_and_update_team_and_user(
+                query_user= query_user,
+                filter_user= filter_user,
+                query_team= query_team,
+                filter_team= filter_team
+            )
+
+            return jsonify({'msg': 'Novo membro adicionado a equipe!'}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
+        
+        except TeamDatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500

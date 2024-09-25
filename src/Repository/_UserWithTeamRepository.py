@@ -42,6 +42,33 @@ class UserTeamRepository:
                 
             except PyMongoError as e:
                 raise
+    
+    def create_member_and_update_team_and_user(
+            self,
+            query_user,
+            filter_user,
+            query_team,
+            filter_team
+    ):
+
+        with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    self.db.teams.update_one(
+                        query_team,
+                        filter_team,
+                        session=session
+                    )
+
+                    self.db.users.update_one(
+                        query_user,
+                        filter_user,
+                        session=session
+                    )
+
+            except PyMongoError as e:
+                raise
 
     def  get_info_from_user_about_team(
             self,
