@@ -119,3 +119,29 @@ class UserTeamRepository:
         
         except PyMongoError as e:
             raise OperationAggregationFailed(f"Erro inesperado com MongoDB: {str(e)}")
+        
+    def get_members_from_team(
+            self,
+            pipeline
+    ):
+        try:
+            result = list(self.db.users.aggregate(pipeline))
+            return result
+        
+        except OperationFailure as e:
+            raise OperationAggregationFailed(f"Erro na operação de agregação: {str(e)}")
+        
+        except ConfigurationError as e:
+            raise OperationAggregationFailed(f"Erro de configuração: {str(e)}")
+        
+        except ConnectionFailure as e:
+            raise OperationAggregationFailed(f"Falha na conexão com o MongoDB: {str(e)}")
+        
+        except InvalidOperation as e:
+            raise OperationAggregationFailed(f"Operação inválida: {str(e)}")
+        
+        except DocumentTooLarge as e:
+            raise OperationAggregationFailed(f"O documento é muito grande: {str(e)}")
+        
+        except PyMongoError as e:
+            raise OperationAggregationFailed(f"Erro inesperado com MongoDB: {str(e)}")

@@ -11,6 +11,7 @@ class Team:
             members: list = [],
             projects: list = [],
             status: bool = True,
+            config_team: list = [],
             created_at: str = datetime.now(),
             last_update: str = datetime.now(),
     ) -> None:
@@ -22,6 +23,7 @@ class Team:
         self.created_at = created_at
         self.last_update = last_update
         self.status = status
+        self.config_team = config_team
 
     def to_dict(self) -> dict:
         """Converte o modelo para um dicionário, adequado para inserção no MongoDB"""
@@ -32,6 +34,7 @@ class Team:
             "members": self.members,
             "projects": self.projects,
             "status": self.status,
+            "config_team": self.config_team,
             "created_at": self.created_at,
             "last_update": self.last_update,
         }

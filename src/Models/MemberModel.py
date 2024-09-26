@@ -9,6 +9,7 @@ class Members:
             name: str,
             email: str,
             level: int = 0,
+            boss: bool = False,
             status: bool = True,
             added_at: str = datetime.now(),
             last_update: str = datetime.now(),
@@ -17,6 +18,7 @@ class Members:
         self.name = name
         self.email = email
         self.level = level
+        self.boss = boss
         self.added_at = added_at
         self.last_update = last_update
         self.status = status
@@ -28,6 +30,7 @@ class Members:
             "name": self.name,
             "email": self.email,
             "level": self.level,
+            "boss": self.boss,
             "status": self.status,
             "added_at": self.added_at,
             "last_update": self.last_update,

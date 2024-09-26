@@ -17,6 +17,12 @@ def create(userId):
     response = TeamService.create(request=request, user=userId)
     return response
 
+@team_route.route('/member', methods=['GET'])
+@token_required
+def get_member(userId):
+    response = TeamService.get_members(user=userId)
+    return response
+
 @team_route.route('/member', methods=['POST'])
 @token_required
 def add_member(userId):

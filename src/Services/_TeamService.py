@@ -27,8 +27,10 @@ from Models import (
 
 from .utils.valdiatorTeam import (
     valdiator_create_team,
-    validator_new_member
+    validator_new_member,
 )
+
+from .utils.pipelines import create_pipeline
 
 class TeamService:
 
@@ -66,7 +68,8 @@ class TeamService:
                 'boss': 1,
                 'team': 1,
                 'project': 1,
-                'userName': 1
+                'userName': 1,
+                'email': 1
             }
 
             boss_exist = user_repo.get_user(query_filter=filter_user, projection=projection)
@@ -91,11 +94,19 @@ class TeamService:
             if team_exist:
                 raise TeamAlreadyExist("Nome informado para sua equipe já está em uso!") 
 
+            member_boss = Members(
+                id_member=user,
+                name=boss_exist.get('userName'),
+                email=boss_exist.get('email'),
+                boss=True
+            )
+
             team = Team(
                 teamName= data.get('name'),
                 boss= user,
                 boss_name=boss_exist.get('userName'),
                 projects= boss_exist.get('project'),
+                # members= member_boss.to_dict()
             )
 
             user_team_repo = UserTeamRepository(
@@ -150,7 +161,7 @@ class TeamService:
             email = data.get('email')
 
             if not email:
-                raise
+                raise TeamDatasNotSend("Parametros não enviados para o servidor!")
             
             user_repo = UserRepository(db=g.db)
 
@@ -214,6 +225,56 @@ class TeamService:
             return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
         
         except TeamDatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+    def get_members(user: ObjectId) -> dict:
+        try:
+            user_team_repo = UserTeamRepository(
+                db=g.db, 
+                client=g.client
+                )
+
+            rules = {
+                "id": user,
+                "from": "teams",
+                "local": "team",
+                "foreign": "_id",
+                "as": "members_from_team",
+                "project": {
+                    "members_from_team.members.name": 1,
+                    "members_from_team.members.email": 1,
+                    "members_from_team.members.level": 1,
+                    "members_from_team.members.status": 1,
+                    "members_from_team.members.added_at": 1
+                }
+            }
+
+            pipeline = create_pipeline(rules=rules)
+
+            result = user_team_repo.get_members_from_team(pipeline=pipeline)
+            members = result[0].get('members_from_team')[0]
+            
+            return jsonify({'msg': 'membros listados com sucesso!', "members": members.get('members')}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
+        
+        except TeamDatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossTeamDoesExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except TeamAlreadyExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossAlreadyGotTeam as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossAlreadyInsertTeam as e:
             return jsonify({"error": e.message}), e.status_code
         
         except Exception as e:
