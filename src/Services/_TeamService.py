@@ -154,7 +154,10 @@ class TeamService:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
     def update(request: Request, user: ObjectId): 
-        pass
+        try:
+            return jsonify({'msg': 'Não implementado!'}), 405
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
     
     def delete_team(user: ObjectId) -> dict:
         try:
@@ -216,7 +219,13 @@ class TeamService:
         
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
-        
+
+    def config_team(request: Request, user: ObjectId) -> dict:
+        try:
+            return jsonify({'msg': 'Não implementado!'}), 405
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+            
     def disabled_team(user: ObjectId) -> dict:
         try:
             user_repo = UserRepository(g.db)
@@ -441,7 +450,7 @@ class TeamService:
     def edit_member(request: Request, user: ObjectId, member: str) -> dict:
         try:
             pass
-            return jsonify({'msg': 'Membros deletado com sucesso!'}), 200
+            return jsonify({'msg': 'Não implementado!'}), 405
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
         

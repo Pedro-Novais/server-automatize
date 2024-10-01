@@ -17,10 +17,22 @@ def create(userId):
     response = TeamService.create(request=request, user=userId)
     return response
 
+@team_route.route('/', methods=['PUT'])
+@token_required
+def create(userId):
+    response = TeamService.update(request=request, user=userId)
+    return response
+
 @team_route.route('/', methods=['DELETE'])
 @token_required
 def delete(userId):
     response = TeamService.delete_team(user=userId)
+    return response
+
+@team_route.route('/configurations', methods=['PUT'])
+@token_required
+def config(userId):
+    response = TeamService.config_team(request=request, user=userId)
     return response
 
 @team_route.route('/enabled', methods=['GET'])
