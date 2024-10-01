@@ -28,3 +28,9 @@ def get_member(userId):
 def add_member(userId):
     response = TeamService.add_member(request=request, user=userId)
     return response
+
+@team_route.route('/member/<id>', methods=['DELETE'])
+@token_required
+def delete_member(userId, id):
+    response = TeamService.delete_member(user=userId, member=id)
+    return response

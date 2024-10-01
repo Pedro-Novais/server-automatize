@@ -36,3 +36,10 @@ class UserDeleteWhitoutSucess(UserException):
             message: str = "Ocorreu um erro ao realizar a exclusão do usuário!"
     ) -> None:
         super().__init__(message, status_code=404)
+
+class UserMemberInvalid(UserException):
+    def __init__(
+            self,
+            message: str = "Membro inserido já é chefe ou possui uma equipe"
+    ) -> None:
+        super().__init__(message, status_code=404)

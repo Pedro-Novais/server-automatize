@@ -46,6 +46,6 @@ class BossAlreadyGotTeam(LoginException):
 class BossAlreadyInsertTeam(LoginException):
        def __init__(
             self, 
-            message: str = "Usuário já está dentro de uma equipe, impossibilidade d ecriar uma equipe própria!",
+            message: str = "Usuário já está dentro de uma equipe, impossibilidade de criar uma equipe própria!",
     ):
         super().__init__(message, status_code=409)      

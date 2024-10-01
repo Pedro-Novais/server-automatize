@@ -5,7 +5,7 @@ class Members:
     """Tabela das equipes que estão criadas no sistema"""
     def __init__(
             self,
-            id_member: ObjectId,
+            id_member: str,
             name: str,
             email: str,
             level: int = 0,

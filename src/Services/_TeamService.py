@@ -12,7 +12,9 @@ from CustomExceptions import (
     BossAlreadyGotTeam,
     TeamAlreadyExist,
     BossAlreadyInsertTeam,
-    OperationAggregationFailed
+    OperationAggregationFailed,
+    UserNotFound,
+    UserMemberInvalid
 )
 from Repository import (
     TeamRepository,
@@ -189,7 +191,7 @@ class TeamService:
                 raise TeamDatasNotSend("Usuário já está em uma equipe ou possui uma!")
             
             member = Members(
-                id_member=new_member.get('_id'),
+                id_member=str(new_member.get('_id')),
                 name=new_member.get('userName'),
                 email=new_member.get('email'),
             )
@@ -212,7 +214,7 @@ class TeamService:
                 "$set": {"team": member_adding.get('team')}
             }
 
-            user_team_repo.create_member_and_update_team_and_user(
+            user_team_repo.update_user_and_team(
                 query_user= query_user,
                 filter_user= filter_user,
                 query_team= query_team,
@@ -244,6 +246,7 @@ class TeamService:
                 "foreign": "_id",
                 "as": "members_from_team",
                 "project": {
+                    "members_from_team.members._id": 1,
                     "members_from_team.members.name": 1,
                     "members_from_team.members.email": 1,
                     "members_from_team.members.level": 1,
@@ -263,6 +266,95 @@ class TeamService:
             return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
         
         except TeamDatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossTeamDoesExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except TeamAlreadyExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossAlreadyGotTeam as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossAlreadyInsertTeam as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+    def edit_member(request: Request, user: ObjectId) -> dict:
+        try:
+            pass
+            return jsonify({'msg': 'Membros deletado com sucesso!'}), 200
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+    def delete_member(user: ObjectId, member: str) -> dict:
+        try:
+            user_repo = UserRepository(g.db)
+            user_team_repo = UserTeamRepository(db=g.db, client=g.client)
+
+            filter_boss = {
+                "_id": user
+            }
+
+            boss = user_repo.get_user(query_filter=filter_boss)
+
+            if not boss:
+                raise UserNotFound("Usuário não foi encontrado!")
+
+            if not boss.get('boss') or not boss.get('team'):
+                raise BossTeamDoesExist("Usuário não é boss de um equipe")
+            
+            query_member = {
+                "_id": ObjectId(member)
+            }
+
+            member_search = user_repo.get_user(query_filter=query_member)
+
+            if not member_search:
+                raise UserNotFound("Membro não está cadastrado no sistema!")
+
+            if not member_search.get('team') or member_search.get('boss'):
+                raise UserMemberInvalid("Membro inserido não faz parte da equipe!")
+            
+            filter_team = {
+                "boss": user
+            }
+
+            update_team = {
+                "$pull": {"members":{"_id": ObjectId(member)}}
+            }
+
+            filter_user = {
+                "_id": ObjectId(member)
+            }
+
+            update_user = {
+                "team": None
+            }
+
+            user_team_repo.update_user_and_team(
+                query_user=update_user,
+                filter_user=filter_user,
+                query_team=update_team,
+                filter_team=filter_team
+            )
+
+
+            return jsonify({'msg': 'Membro deletado com sucesso!'}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
+        
+        except TeamDatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserMemberInvalid as e:
             return jsonify({"error": e.message}), e.status_code
         
         except BossTeamDoesExist as e:

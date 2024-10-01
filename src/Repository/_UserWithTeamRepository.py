@@ -43,7 +43,7 @@ class UserTeamRepository:
             except PyMongoError as e:
                 raise
     
-    def create_member_and_update_team_and_user(
+    def update_user_and_team(
             self,
             query_user,
             filter_user,
