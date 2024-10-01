@@ -5,7 +5,7 @@ class TeamRepository:
     
     def get_team(self, query_filter: dict) -> bool:
         team = self.collection.find_one(query_filter)
-        return team is not None
+        return team
     
     def insert_team(self, team):
         insert = self.collection.insert_one(team)

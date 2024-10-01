@@ -35,7 +35,8 @@ class UserService:
                 "password": 0,
                 "created_at": 0,
                 "last_update": 0,
-                "_id": 0
+                "_id": 0,
+                "team": 0
             }
 
             datas = user_repo.get_user(

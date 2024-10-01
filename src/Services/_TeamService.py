@@ -153,8 +153,163 @@ class TeamService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
-    def update(request): 
+    def update(request: Request, user: ObjectId): 
         pass
+    
+    def delete_team(user: ObjectId) -> dict:
+        try:
+            user_repo = UserRepository(g.db)
+            team_repo = TeamRepository(g.db)
+            user_team_repo = UserTeamRepository(db=g.db, client=g.client)
+
+            query_user = {
+                "_id": user
+            }
+
+            boss = user_repo.get_user(query_filter=query_user)
+
+            if not boss:
+                raise UserNotFound()
+            
+            if not boss.get('boss') or not boss.get('team'):
+                raise BossTeamDoesExist("Usuário não possui permissão para excluir uma equipe!")
+            
+            query_team = {
+                "_id": boss.get('team')
+            }
+
+            team = team_repo.get_team(query_filter=query_team)
+
+            if not team:
+                raise TeamNotFound()
+
+            query_user = {
+                "team": boss.get('team')
+            }
+
+            filter_user = {
+                "$set":{
+                    "boss": False,
+                    "team": None
+                }
+            }
+
+            result = user_team_repo.updates_users_and_delete_team(
+                query_team=query_team,
+                query_user=query_user,
+                filter_user=filter_user
+            )
+
+            return jsonify({'msg': 'Equipe deletada com sucesso!'}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
+        
+        except TeamNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossTeamDoesExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+    def disabled_team(user: ObjectId) -> dict:
+        try:
+            user_repo = UserRepository(g.db)
+            team_repo = TeamRepository(g.db)
+
+            query_user = {
+                "_id": user
+            }
+
+            boss = user_repo.get_user(query_filter=query_user)
+
+            if not boss:
+                raise UserNotFound()
+            
+            if not boss.get('boss') or not boss.get('team'):
+                raise BossTeamDoesExist("Usuário não possui permissão para excluir uma equipe!")
+            
+            query_team = {
+                "_id": boss.get('team')
+            }
+
+            team = team_repo.get_team(query_filter=query_team)
+
+            if not team:
+                raise TeamNotFound()
+
+            update_team = {"$set":{"status": False}}
+
+            result = team_repo.update_team(query_filter=query_team, team=update_team)
+
+            return jsonify({'msg': 'Equipe desabilitada com sucesso!'}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
+        
+        except TeamNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossTeamDoesExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+    def enabled_team(user: ObjectId) -> dict:
+        try:
+            user_repo = UserRepository(g.db)
+            team_repo = TeamRepository(g.db)
+
+            query_user = {
+                "_id": user
+            }
+
+            boss = user_repo.get_user(query_filter=query_user)
+
+            if not boss:
+                raise UserNotFound()
+            
+            if not boss.get('boss') or not boss.get('team'):
+                raise BossTeamDoesExist("Usuário não possui permissão para excluir uma equipe!")
+            
+            query_team = {
+                "_id": boss.get('team')
+            }
+
+            team = team_repo.get_team(query_filter=query_team)
+
+            if not team:
+                raise TeamNotFound()
+
+            update_team = {"$set":{"status": True}}
+
+            result = team_repo.update_team(query_filter=query_team, team=update_team)
+
+            return jsonify({'msg': 'Equipe habilitada com sucesso!'}), 200
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao realizar as atualizações no banco de dados!", "type": "database"}), 500
+        
+        except TeamNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except BossTeamDoesExist as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
     def add_member(request: Request, user: ObjectId) -> dict:
         try:
@@ -283,7 +438,7 @@ class TeamService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
         
-    def edit_member(request: Request, user: ObjectId) -> dict:
+    def edit_member(request: Request, user: ObjectId, member: str) -> dict:
         try:
             pass
             return jsonify({'msg': 'Membros deletado com sucesso!'}), 200

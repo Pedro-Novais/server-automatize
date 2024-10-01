@@ -17,6 +17,24 @@ def create(userId):
     response = TeamService.create(request=request, user=userId)
     return response
 
+@team_route.route('/', methods=['DELETE'])
+@token_required
+def delete(userId):
+    response = TeamService.delete_team(user=userId)
+    return response
+
+@team_route.route('/enabled', methods=['GET'])
+@token_required
+def enabled(userId):
+    response = TeamService.enabled_team(user=userId)
+    return response
+
+@team_route.route('/disabled', methods=['GET'])
+@token_required
+def disabled(userId):
+    response = TeamService.disabled_team(user=userId)
+    return response
+
 @team_route.route('/member', methods=['GET'])
 @token_required
 def get_member(userId):
@@ -27,6 +45,12 @@ def get_member(userId):
 @token_required
 def add_member(userId):
     response = TeamService.add_member(request=request, user=userId)
+    return response
+
+@team_route.route('/member/<id>', methods=['PUT'])
+@token_required
+def edit_member(userId):
+    response = TeamService.edit_member(request=request, user=userId, member=id)
     return response
 
 @team_route.route('/member/<id>', methods=['DELETE'])

@@ -69,6 +69,31 @@ class UserTeamRepository:
 
             except PyMongoError as e:
                 raise
+    
+    def updates_users_and_delete_team(
+            self,
+            query_user,
+            filter_user,
+            query_team,
+    ):
+
+        with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    self.db.teams.delete_one(
+                        query_team,
+                        session=session
+                    )
+
+                    self.db.users.update_many(
+                        query_user,
+                        filter_user,
+                        session=session
+                    )
+
+            except PyMongoError as e:
+                raise
 
     def  get_info_from_user_about_team(
             self,
