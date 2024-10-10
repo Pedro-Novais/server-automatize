@@ -1,5 +1,5 @@
 from Models.UserModel import User
-from Models.ProjectModel import Project
+from Models.ProjectTypeModel import ProjectType
 from Models.TeamModel import Team
 from Models.MemberModel import Members
 from Models.SubscriptionsModel import Subscriptions

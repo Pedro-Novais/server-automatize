@@ -24,3 +24,8 @@ from CustomExceptions.TeamCustomExceptions import (
 from CustomExceptions.OperationsDatabaseExceptions import(
     OperationAggregationFailed
 )
+
+from CustomExceptions.ProjectsCustomExceptions import(
+    DatasNotSend,
+    ProjectAlreadyExist
+)

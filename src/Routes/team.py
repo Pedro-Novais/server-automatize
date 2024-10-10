@@ -19,7 +19,7 @@ def create(userId):
 
 @team_route.route('/', methods=['PUT'])
 @token_required
-def create(userId):
+def update(userId):
     response = TeamService.update(request=request, user=userId)
     return response
 
