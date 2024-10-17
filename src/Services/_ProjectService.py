@@ -2,14 +2,15 @@ from Repository import (
     ProjectRepository,
     ProjectTypeRepository,
     UserRepository,
-    UserAndTeamWithProject
+    UserAndTeamWithProject,
 )
 
 from CustomExceptions import (
     DatasNotSend,
     ProjectAlreadyExist,
     ProjectTypeNotFound,
-    UserWithoutPermission
+    UserWithoutPermission,
+    OperationAggregationFailed
 )
 
 from Models import (
@@ -21,6 +22,7 @@ from pymongo.errors import PyMongoError
 
 from flask import Request, jsonify, g
 from bson import ObjectId
+from .utils.pipelines import create_pipeline
 
 class ProjectService:
     def create_project_type(request: Request, user: ObjectId) -> dict:
@@ -69,6 +71,61 @@ class ProjectService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
+    def get_project(user: ObjectId) -> dict:
+        try:
+            project_repo = ProjectRepository(db=g.db) 
+            project_shared_repo = UserAndTeamWithProject(
+                db=g.db,
+                client=g.client
+            )
+
+            pipeline_unformated = {
+                "id": user,
+                "from": "teams",
+                "local": "team",
+                "foreign": "_id",
+                "as": "projects_team",
+                "project": {
+                    "projects": 1,
+                    "projects_team.projects": 1
+                }
+            }
+
+            pipeline = create_pipeline(pipeline_unformated)
+
+            projects = project_shared_repo.get_projects(pipeline=pipeline)[0]
+
+            project_user = projects.get('projects')
+            project_team = projects.get('projects_team')[0]['projects']
+            
+            project_final = []
+
+            for project in project_user:
+                project_final.append(project)
+            
+            for project in project_team:
+                project_final.append(project)
+
+            query = {
+                "_id": {"$in": project_final},
+                "status": True
+            }
+
+            projection = {
+                "_id": 0,
+                "owner": 0
+            }
+
+            project_search = list(project_repo.get_many(query_filter=query, projection=projection))
+
+            return jsonify({'msg': 'Operação concluida com sucesso!', 'projects': project_search}), 200
+
+        except OperationAggregationFailed as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
     def create_project(request: Request, user: ObjectId) -> dict:
         try:
             project_type_repo = ProjectTypeRepository(g.db)
@@ -108,7 +165,7 @@ class ProjectService:
                 
                 query_user = {
                     "$push": {
-                        "project": None
+                        "projects": None
                     }
                 }
 

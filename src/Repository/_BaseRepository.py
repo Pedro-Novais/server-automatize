@@ -1,6 +1,10 @@
 class BaseRepository:
-    def get(self, query_filter: dict, projection: dict | None = None) -> bool:
+    def get(self, query_filter: dict, projection: dict | None = None) -> dict:
         team = self.collection.find_one(query_filter, projection)
+        return team
+    
+    def get_many(self, query_filter: dict, projection: dict | None = None) -> list:
+        team = self.collection.find(query_filter, projection)
         return team
     
     def post(self, team):

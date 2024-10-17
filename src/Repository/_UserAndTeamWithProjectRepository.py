@@ -29,7 +29,7 @@ class UserAndTeamWithProject:
                         session=session
                     )
 
-                    query_user["$push"]["project"] = response.inserted_id
+                    query_user["$push"]["projects"] = response.inserted_id
 
                     self.db.users.update_one(
                         filter_user,
@@ -65,3 +65,26 @@ class UserAndTeamWithProject:
 
             except PyMongoError as e:
                 raise
+
+    def get_projects(self, pipeline: dict) -> list:
+        try:
+            result = list(self.db.users.aggregate(pipeline))
+            return result
+        
+        except OperationFailure as e:
+            raise OperationAggregationFailed(f"Erro na operação de agregação: {str(e)}")
+        
+        except ConfigurationError as e:
+            raise OperationAggregationFailed(f"Erro de configuração: {str(e)}")
+        
+        except ConnectionFailure as e:
+            raise OperationAggregationFailed(f"Falha na conexão com o MongoDB: {str(e)}")
+        
+        except InvalidOperation as e:
+            raise OperationAggregationFailed(f"Operação inválida: {str(e)}")
+        
+        except DocumentTooLarge as e:
+            raise OperationAggregationFailed(f"O documento é muito grande: {str(e)}")
+        
+        except PyMongoError as e:
+            raise OperationAggregationFailed(f"Erro inesperado com MongoDB: {str(e)}")

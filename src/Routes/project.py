@@ -6,8 +6,9 @@ project_route = Blueprint('project', __name__)
 
 @project_route.route('/', methods=['GET'])
 @token_required
-def get():
-    pass
+def get(user):
+    response = ProjectService.get_project(user=user)
+    return response
 
 @project_route.route('/', methods=['POST'])
 @token_required
