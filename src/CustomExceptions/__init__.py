@@ -27,5 +27,7 @@ from CustomExceptions.OperationsDatabaseExceptions import(
 
 from CustomExceptions.ProjectsCustomExceptions import(
     DatasNotSend,
-    ProjectAlreadyExist
+    ProjectAlreadyExist,
+    ProjectTypeNotFound,
+    UserWithoutPermission
 )

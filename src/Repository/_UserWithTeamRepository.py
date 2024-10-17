@@ -1,5 +1,3 @@
-from flask import jsonify
-
 from pymongo.errors import (
     OperationFailure, ConfigurationError, ConnectionFailure, InvalidOperation,
     DocumentTooLarge, PyMongoError

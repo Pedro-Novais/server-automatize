@@ -1,13 +1,16 @@
+from bson import ObjectId
 from datetime import datetime
 
 class Project:
-    """Tabela dos projetos, automações, chatbost que os usuários ou times possuem"""
+    """Tabela dos projetos, automações, chatbots que os usuários ou times possuem"""
     def __init__(
             self,
             projectName: str,
-            owner: str,
+            owner: ObjectId,
             typeOwner: str,
-            type: str,
+            typeProject: str,
+            recipients: list = [],
+            structure: int = 0,
             status: bool = True,
             created_at: str = datetime.now(),
             last_update: str = datetime.now()
@@ -15,7 +18,9 @@ class Project:
         self.name = projectName
         self.owner = owner
         self.typeOwner = typeOwner
-        self.type = type
+        self.typeProject = typeProject
+        self.recipients = recipients
+        self.structure = structure
         self.status = status
         self.created_at = created_at
         self.last_update = last_update
@@ -25,7 +30,9 @@ class Project:
             "projectName": self.name,
             "owner": self.owner,
             "typeOwner": self.typeOwner,
-            "type": self.type,
+            "typeProject": self.typeProject,
+            "recipients": self.recipients,
+            "structure": self.structure,
             "status": self.status,
             "created_at": self.created_at,
             "last_update": self.last_update,

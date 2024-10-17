@@ -3,3 +3,4 @@ from Repository._UserRepository import UserRepository
 from Repository._UserWithTeamRepository import UserTeamRepository
 from Repository._ProjectTypeRepository import ProjectTypeRepository
 from Repository._ProjectRepository import ProjectRepository
+from Repository._UserAndTeamWithProjectRepository import UserAndTeamWithProject

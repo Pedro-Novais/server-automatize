@@ -40,7 +40,7 @@ class User:
             "password": self.password,
             "team": self.team,
             "boss": self.boss,
-            "project": self.project,
+            "projects": self.project,
             "created_at:": self.created_at,
             "last_update": self.last_update,
         }
