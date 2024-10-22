@@ -10,7 +10,8 @@ from CustomExceptions import (
     ProjectAlreadyExist,
     ProjectTypeNotFound,
     UserWithoutPermission,
-    OperationAggregationFailed
+    OperationAggregationFailed,
+    DatasInvalidsToChange
 )
 
 from Models import (
@@ -243,3 +244,88 @@ class ProjectService:
         
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+    
+    def update_project(self, request: Request, user: ObjectId) -> dict:
+        try:
+            data = request.get_json()
+
+            name_project_type = data.get("nameProjectType")
+            type_project_type = data.get("typeProjectType")
+
+            if not name_project_type or not type_project_type:
+                 raise DatasInvalidsToChange()
+
+            project_type_repo = ProjectTypeRepository(g.db)
+        
+            query = {
+                "name": name_project_type,
+                "type": type_project_type
+            }
+
+            projection = {
+                "structure": 1,
+                "_id": 1
+            }
+
+            project_type = project_type_repo.get(
+                query_filter=query,
+                projection=projection
+                )
+            
+            if not project_type:
+                raise DatasInvalidsToChange("Tipo de projeto a ser atualizado não foi encontrado!")
+
+            possibles_changes = ["projectName", "structure", "nameProjectType", "typeProjectType"]
+            changes = {}
+
+            for change in data:
+                if not change in possibles_changes:
+                    raise DatasInvalidsToChange()
+
+                if change == possibles_changes[0]:
+                    self.update_project_name(name=data.get("projectName"))
+                    change["projectName"] = data.get("projectName")
+
+                if change == possibles_changes[1]:
+                    self.update_project_structure(
+                        structure=data.get("structure"),
+                        possibles_structures=project_type["structure"]
+                        )
+                    change["structure"] = data.get("structure")
+
+            return jsonify({'msg': 'Projeto atualizado com sucesso!'}), 200
+        
+        except DatasInvalidsToChange as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except DatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao criar tipo projeto"}), 500
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+
+    @staticmethod
+    def update_project_name(name: str) -> None:
+        if not name:
+            raise DatasNotSend("Nome do projeto não foi enviado ao servidor!")
+        
+    @staticmethod
+    def update_project_structure(structure: int, possibles_structures: list = []) -> None:
+        if not structure:
+            raise DatasNotSend("Tipo de estrutura não foi enviado ao servidor!")
+        
+
+    def delete_project():
+        pass
+
+    def get_recipient():
+        pass
+
+    def add_recipient():
+        pass
+
+    def remove_recipient():
+        pass

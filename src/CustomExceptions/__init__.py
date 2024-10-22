@@ -29,5 +29,6 @@ from CustomExceptions.ProjectsCustomExceptions import(
     DatasNotSend,
     ProjectAlreadyExist,
     ProjectTypeNotFound,
-    UserWithoutPermission
+    UserWithoutPermission,
+    DatasInvalidsToChange
 )

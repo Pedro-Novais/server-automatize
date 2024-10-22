@@ -15,3 +15,10 @@ def get(user):
 def create(user):
     response = ProjectService.create_project(request=request, user=user)
     return response
+
+@project_route.route('/', methods=['PATCH'])
+@token_required
+def update(user):
+    project = ProjectService()
+    response = project.update_project(request=request, user=user)
+    return response

@@ -35,4 +35,11 @@ class UserWithoutPermission(ProjectException):
             message: str = "Usuário não possui permição de criar projeto do tipo compania",
     ):
         super().__init__(message, status_code=403)
+
+class DatasInvalidsToChange(ProjectException):
+    def __init__(
+            self, 
+            message: str = "Impossibilidade de atualizar o projeto com os parametros enviados ao servidor!",
+    ):
+        super().__init__(message, status_code=400)
    
