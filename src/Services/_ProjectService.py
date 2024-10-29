@@ -19,6 +19,8 @@ from Models import (
     Project
 )
 
+from Core._StructureMessage import StructureMessage
+
 from pymongo.errors import PyMongoError
 
 from flask import Request, jsonify, g
@@ -129,6 +131,7 @@ class ProjectService:
         
     def create_project(request: Request, user: ObjectId) -> dict:
         try:
+            project_repo = ProjectRepository(db=g.db) 
             project_type_repo = ProjectTypeRepository(g.db)
 
             data = request.get_json()
@@ -156,8 +159,23 @@ class ProjectService:
                     db=g.db,
                     client=g.client
                 )
+                 
+                query_filter = {
+                    "owner": user
+                }
+
+                last_code = project_repo.get_sort(
+                        key="code",
+                        type_search=-1,
+                        filter=query_filter
+                    )
+                
+                code = 1
+                if last_code and "code" in last_code:
+                    code = last_code["code"] + 1
 
                 project = Project(
+                    code=code,
                     projectName=name_project,
                     owner=user,
                     typeOwner=type_owner,
@@ -245,7 +263,7 @@ class ProjectService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
     
-    def update_project(self, request: Request, user: ObjectId) -> dict:
+    def update_project(self, request: Request, user: ObjectId, projectId: str) -> dict:
         try:
             data = request.get_json()
 
@@ -255,8 +273,9 @@ class ProjectService:
             if not name_project_type or not type_project_type:
                  raise DatasInvalidsToChange()
 
+            project_repo = ProjectRepository(g.db)
             project_type_repo = ProjectTypeRepository(g.db)
-        
+            
             query = {
                 "name": name_project_type,
                 "type": type_project_type
@@ -284,17 +303,35 @@ class ProjectService:
 
                 if change == possibles_changes[0]:
                     self.update_project_name(name=data.get("projectName"))
-                    change["projectName"] = data.get("projectName")
+                    changes["projectName"] = data.get("projectName")
 
                 if change == possibles_changes[1]:
+                    
                     self.update_project_structure(
                         structure=data.get("structure"),
                         possibles_structures=project_type["structure"]
                         )
-                    change["structure"] = data.get("structure")
+                    changes["structure"] = data.get("structure")
+
+            filter_update = {
+                "owner": user,
+                "code": int(projectId)
+            }
+
+            query_update = {
+                "$set": changes
+            }
+
+            result_update = project_repo.update(
+                query_filter=filter_update, 
+                update=query_update
+            )
+
+            if not result_update.modified_count:
+                raise DatasInvalidsToChange("Projeto a ser atualizado não existe!")
 
             return jsonify({'msg': 'Projeto atualizado com sucesso!'}), 200
-        
+
         except DatasInvalidsToChange as e:
             return jsonify({"error": e.message}), e.status_code
         
@@ -307,6 +344,7 @@ class ProjectService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
+       
     @staticmethod
     def update_project_name(name: str) -> None:
         if not name:
@@ -316,6 +354,9 @@ class ProjectService:
     def update_project_structure(structure: int, possibles_structures: list = []) -> None:
         if not structure:
             raise DatasNotSend("Tipo de estrutura não foi enviado ao servidor!")
+        
+        if not structure in possibles_structures:
+            raise DatasNotSend("Estrutura a ser atualizada não existe!")
         
 
     def delete_project():

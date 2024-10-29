@@ -16,9 +16,9 @@ def create(user):
     response = ProjectService.create_project(request=request, user=user)
     return response
 
-@project_route.route('/', methods=['PATCH'])
+@project_route.route('/<projectId>', methods=['PATCH'])
 @token_required
-def update(user):
+def update(user, projectId):
     project = ProjectService()
-    response = project.update_project(request=request, user=user)
+    response = project.update_project(request=request, user=user, projectId=projectId)
     return response

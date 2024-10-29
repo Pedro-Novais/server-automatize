@@ -5,16 +5,18 @@ class Project:
     """Tabela dos projetos, automações, chatbots que os usuários ou times possuem"""
     def __init__(
             self,
+            code: int,
             projectName: str,
             owner: ObjectId,
             typeOwner: str,
             typeProject: str,
             recipients: list = [],
-            structure: int = 0,
+            structure: int = 1,
             status: bool = True,
             created_at: str = datetime.now(),
             last_update: str = datetime.now()
             ) -> None:
+        self.code = code
         self.name = projectName
         self.owner = owner
         self.typeOwner = typeOwner
@@ -27,6 +29,7 @@ class Project:
 
     def to_dict(self) -> dict:
         return{
+            "code": self.code,
             "projectName": self.name,
             "owner": self.owner,
             "typeOwner": self.typeOwner,
