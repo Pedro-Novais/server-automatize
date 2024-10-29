@@ -30,5 +30,7 @@ from CustomExceptions.ProjectsCustomExceptions import(
     ProjectAlreadyExist,
     ProjectTypeNotFound,
     UserWithoutPermission,
-    DatasInvalidsToChange
+    DatasInvalidsToChange,
+    ProjectNotFound,
+    ConflictAboutTheOwner
 )

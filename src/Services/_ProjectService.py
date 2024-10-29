@@ -11,7 +11,10 @@ from CustomExceptions import (
     ProjectTypeNotFound,
     UserWithoutPermission,
     OperationAggregationFailed,
-    DatasInvalidsToChange
+    DatasInvalidsToChange,
+    UserNotFound,
+    ProjectNotFound,
+    ConflictAboutTheOwner
 )
 
 from Models import (
@@ -153,6 +156,8 @@ class ProjectService:
             if not type_owner == 'individual' and not type_owner == 'company':
                 raise DatasNotSend("Dados não enviados ao servidor para a criação de um projerto")
 
+            code = 1
+
             if type_owner == 'individual':
                 
                 user_project_repo = UserAndTeamWithProject(
@@ -170,7 +175,6 @@ class ProjectService:
                         filter=query_filter
                     )
                 
-                code = 1
                 if last_code and "code" in last_code:
                     code = last_code["code"] + 1
 
@@ -221,12 +225,26 @@ class ProjectService:
                     )
 
                 if not boss:
-                    raise Exception()
+                    raise UserNotFound()
 
                 if not boss.get('team') or not boss.get('boss'):
                     raise UserWithoutPermission()
 
+                query_filter = {
+                    "owner": boss.get("team")
+                }
+
+                last_code = project_repo.get_sort(
+                        key="code",
+                        type_search=-1,
+                        filter=query_filter
+                    )
+                
+                if last_code and "code" in last_code:
+                    code = last_code["code"] + 1
+                
                 project = Project(
+                    code=code,
                     projectName=name_project,
                     owner=boss.get('team'),
                     typeOwner=type_owner,
@@ -252,6 +270,9 @@ class ProjectService:
             return jsonify({'msg': 'Projeto criado com sucesso!'}), 200
         
         except DatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
             return jsonify({"error": e.message}), e.status_code
         
         except ProjectTypeNotFound as e:
@@ -344,7 +365,6 @@ class ProjectService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
-       
     @staticmethod
     def update_project_name(name: str) -> None:
         if not name:
@@ -357,10 +377,123 @@ class ProjectService:
         
         if not structure in possibles_structures:
             raise DatasNotSend("Estrutura a ser atualizada não existe!")
-        
 
-    def delete_project():
-        pass
+    def delete_project(user: ObjectId, projectId: str, typeOwner: str) -> dict:
+        try:
+            project_repo = ProjectRepository(g.db)
+            project_shared_repo = UserAndTeamWithProject(
+                db=g.db,
+                client=g.client
+            )
+            owner_final = user
+
+            if not typeOwner == "individual" and not typeOwner == "company":
+                raise DatasNotSend("Parametros não foram enviados ao servidor!")
+            
+            if typeOwner == "company":
+                user_repo = UserRepository(g.db)
+
+                filter_user = {
+                    "_id": user
+                }
+
+                projection = {
+                    "boss": 1,
+                    "team": 1
+                }
+
+                user_exist = user_repo.get_user(
+                    query_filter=filter_user,
+                    projection=projection
+                    )
+                
+                if not user_exist:
+                    raise UserNotFound("usuário não está autenticado")
+
+                if not user_exist.get("boss") or not user_exist.get("team"):
+                    raise UserWithoutPermission("Usuário não possui permição de excluir esse projeto!")
+
+                owner_final = user_exist.get("team")
+
+            query_filter = {
+                "code": int(projectId),
+                "owner": owner_final,
+            }
+
+            projection = {
+                "_id": 1,
+                "typeOwner": 1,
+                "owner": 1,
+            }
+
+            project_exist = project_repo.get(
+                query_filter=query_filter,
+                projection=projection
+                )
+
+            if not project_exist:
+                raise ProjectNotFound("Projeto não foi encontrado para ser excluído!")
+            
+            if not project_exist.get("typeOwner") == typeOwner or not project_exist.get("owner") == owner_final:
+                raise ConflictAboutTheOwner("Informações enviadas ao servidor não coincidem com informações da base de dados!")
+
+            project_id_to_delete = project_exist.get("_id")
+
+            filter_project_delete = {
+                "_id": project_id_to_delete
+            }
+
+            filter_project_delete = {
+                "_id": project_id_to_delete
+            }
+
+            filter_owner_update = {
+                    "_id": owner_final
+            }
+
+            query_owner_update = {
+                "$pull": {
+                    "projects": project_id_to_delete
+                }
+            }
+
+            if typeOwner == "individual":
+                project_shared_repo.delete_owner_individual(
+                    query_user=query_owner_update,
+                    filter_user=filter_owner_update,
+                    delete_project=filter_project_delete
+                ) 
+
+            elif typeOwner == "company":
+                project_shared_repo.delete_owner_company(
+                    query_user=query_owner_update,
+                    filter_user=filter_owner_update,
+                    delete_project=filter_project_delete
+                ) 
+
+            return jsonify({'msg': 'Projeto deletado com sucesso!'}), 200
+        
+        except ConflictAboutTheOwner as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except DatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserWithoutPermission as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except ProjectNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except PyMongoError as e:
+            return jsonify({"error": "Erro ao criar projeto, {}".format(str(e))}), 500
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+
 
     def get_recipient():
         pass
@@ -369,4 +502,7 @@ class ProjectService:
         pass
 
     def remove_recipient():
+        pass
+
+    def out_sign_recipient():
         pass

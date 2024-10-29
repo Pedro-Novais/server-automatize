@@ -42,4 +42,19 @@ class DatasInvalidsToChange(ProjectException):
             message: str = "Impossibilidade de atualizar o projeto com os parametros enviados ao servidor!",
     ):
         super().__init__(message, status_code=400)
+
+class ProjectNotFound(ProjectException):
+    def __init__(
+            self, 
+            message: str = "Projeto não foi encontrado",
+    ):
+        super().__init__(message, status_code=404)
+
+class ConflictAboutTheOwner(ProjectException):
+    def __init__(
+            self, 
+            message: str = "Owner do projeto diverge das informações enviadas!",
+    ):
+        super().__init__(message, status_code=409)
+   
    

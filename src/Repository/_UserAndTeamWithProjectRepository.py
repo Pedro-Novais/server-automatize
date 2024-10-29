@@ -65,6 +65,54 @@ class UserAndTeamWithProject:
 
             except PyMongoError as e:
                 raise
+    
+    def delete_owner_individual(
+            self,
+            query_user,
+            filter_user,
+            delete_project
+            ):
+         with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    self.db.project.delete_one(
+                        delete_project,
+                        session=session
+                    )
+
+                    self.db.users.update_one(
+                        filter_user,
+                        query_user,
+                        session=session
+                    )
+
+            except PyMongoError as e:
+                raise
+    
+    def delete_owner_company(
+            self,
+            query_user,
+            filter_user,
+            delete_project
+            ):
+         with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    self.db.project.delete_one(
+                        delete_project,
+                        session=session
+                    )
+
+                    self.db.teams.update_one(
+                        filter_user,
+                        query_user,
+                        session=session
+                    )
+
+            except PyMongoError as e:
+                raise
 
     def get_projects(self, pipeline: dict) -> list:
         try:
