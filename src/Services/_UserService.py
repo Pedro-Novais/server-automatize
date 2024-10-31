@@ -1,4 +1,5 @@
-from flask import jsonify, g
+from flask import jsonify, g, Request
+from bson import ObjectId
 from Models import User
 from Repository import UserRepository
 
@@ -55,7 +56,7 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
-    def create_user(request) -> dict:
+    def create_user(request: Request) -> dict:
         try:
             data = request.get_json()
             validation_user_data(data)

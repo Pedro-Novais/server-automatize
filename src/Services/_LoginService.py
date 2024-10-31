@@ -1,4 +1,5 @@
-from flask import jsonify, g
+from flask import jsonify, g, Request
+from bson import ObjectId
 from Repository import UserRepository
 
 from auth import (
@@ -13,7 +14,7 @@ from CustomExceptions.LoginCustomExceptions import (
 )
 
 class LoginService():
-    def login(request) -> dict:
+    def login(request: Request) -> dict:
         try:
             data = request.get_json()
             email = data.get('email')
@@ -61,3 +62,6 @@ class LoginService():
         
         except Exception as e:  
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+    def sign_out(user: ObjectId) -> dict:
+        pass

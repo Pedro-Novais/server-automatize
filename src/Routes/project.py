@@ -25,26 +25,26 @@ def update(user, projectId):
 
 @project_route.route('/<projectId>/<typeOwner>', methods=['DELETE'])
 @token_required
-def delete(user, projectId, typeOwner):
-    response = ProjectService.delete_project(user=user, projectId=projectId, typeOwner=typeOwner)
+def delete(userId, projectId, typeOwner):
+    response = ProjectService.delete_project(user=userId, projectId=projectId, typeOwner=typeOwner)
     return response
 
 @project_route.route('/recipients/<projectId>/<typeOwner>', methods=['GET'])
 @token_required
-def get_recipients(user, projectId, typeOwner):
-    response = ProjectService.get_recipients(user=user, projectId=projectId, typeOwner=typeOwner)
+def get_recipients(userId, projectId, typeOwner):
+    response = ProjectService.get_recipients(user=userId, projectId=projectId, typeOwner=typeOwner)
     return response
 
 @project_route.route('/recipients/<projectId>/<typeOwner>', methods=['POST'])
 @token_required
-def post_recipients(user, projectId, typeOwner):
-    response = ProjectService.add_recipient(request=request, user=user, projectId=projectId, typeOwner=typeOwner)
+def post_recipients(userId, projectId, typeOwner):
+    response = ProjectService.add_recipient(user=userId, request=request, projectId=projectId, typeOwner=typeOwner)
     return response
 
 @project_route.route('/recipients/<projectId>/<typeOwner>', methods=['PATCH'])
 @token_required
-def remove_recipients(user, projectId, typeOwner):
-    response = ProjectService.remove_recipient(request=request, user=user, projectId=projectId, typeOwner=typeOwner)
+def remove_recipients(userId, projectId, typeOwner):
+    response = ProjectService.remove_recipient(user=userId, request=request, projectId=projectId, typeOwner=typeOwner)
     return response
 
 @project_route.route('/<projectId>/out', methods=['DELETE'])
