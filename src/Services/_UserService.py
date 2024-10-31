@@ -22,9 +22,7 @@ from .utils.validators import (
     )
 
 class UserService:
-    def get_user(
-            user: str
-            ) -> dict:
+    def get_user(user: ObjectId) -> dict:
         try:
             user_repo = UserRepository(g.db)
 
@@ -92,7 +90,7 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
     
-    def update_geral(user, request) -> dict:
+    def update_geral(user: ObjectId, request: Request) -> dict:
         try:
             data = request.get_json()
 
@@ -113,7 +111,7 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
-    def update_password(user, request) -> dict:
+    def update_password(user: ObjectId, request: Request) -> dict:
         try:
             data = request.get_json()
 
@@ -167,7 +165,8 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
-    def delete_user(user) -> dict:
+    def delete_user(user: ObjectId) -> dict:
+        """Atualizar esse  método para realizar a remoção do id excluido de algum time, projetos, etc"""
         try:
 
             user_repo = UserRepository(g.db)

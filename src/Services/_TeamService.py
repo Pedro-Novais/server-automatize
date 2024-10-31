@@ -1,9 +1,6 @@
 from flask import Request, g, jsonify
 from bson import ObjectId
-from pymongo.errors import (
-    OperationFailure, ConfigurationError, ConnectionFailure, InvalidOperation,
-    DocumentTooLarge, PyMongoError
-)
+from pymongo.errors import PyMongoError
 
 from CustomExceptions import (
     TeamDatasNotSend,
