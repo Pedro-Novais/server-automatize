@@ -29,19 +29,19 @@ def delete(user, projectId, typeOwner):
     response = ProjectService.delete_project(user=user, projectId=projectId, typeOwner=typeOwner)
     return response
 
-@project_route.route('/<projectId>/recipients', methods=['GET'])
+@project_route.route('/recipients/<projectId>/<typeOwner>', methods=['GET'])
 @token_required
-def get_recipients(user, projectId):
-    response = ProjectService.get_recipient(user=user, projectId=projectId)
+def get_recipients(user, projectId, typeOwner):
+    response = ProjectService.get_recipients(user=user, projectId=projectId, typeOwner=typeOwner)
     return response
 
-@project_route.route('/<projectId>/recipients', methods=['POST'])
+@project_route.route('/recipients/<projectId>/<typeOwner>', methods=['POST'])
 @token_required
-def post_recipients(user, projectId):
-    response = ProjectService.add_recipient(user=user, projectId=projectId)
+def post_recipients(user, projectId, typeOwner):
+    response = ProjectService.add_recipient(request=request, user=user, projectId=projectId, typeOwner=typeOwner)
     return response
 
-@project_route.route('/<projectId>/recipients', methods=['PATCH'])
+@project_route.route('/recipients/<projectId>', methods=['PATCH'])
 @token_required
 def remove_recipients(user, projectId):
     response = ProjectService.remove_recipient(user=user, projectId=projectId)

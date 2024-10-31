@@ -2,7 +2,8 @@ import re
 
 from CustomExceptions import (
     UserValuesNotFound, 
-    UserInvalidDataUpdate
+    UserInvalidDataUpdate,
+    EmailsInvalidToAdd
     )
 
 # Validações do usuário
@@ -30,3 +31,18 @@ def validation_password(new: str) -> bool:
 
     if not re.match(regex, new):
         raise UserInvalidDataUpdate("Senha não está no padrão exigido")
+    
+def validate_email(emails: list) -> dict | None:
+    if len(emails) == 0:
+        raise EmailsInvalidToAdd("Destinatário a ser adicionado, não foi enviado ao servidor!")
+    
+    regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+
+    for email in emails:
+        if not isinstance(email, str):
+            raise EmailsInvalidToAdd()
+        if not re.match(regex, email):
+            result_invalid = {
+                "emailNotValid": email
+            }
+            return result_invalid

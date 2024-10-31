@@ -56,5 +56,10 @@ class ConflictAboutTheOwner(ProjectException):
             message: str = "Owner do projeto diverge das informações enviadas!",
     ):
         super().__init__(message, status_code=409)
-   
-   
+
+class EmailsInvalidToAdd(ProjectException):
+    def __init__(
+            self, 
+            message: str = "Destinatário a ser adicionado possui email inválido!",
+    ):
+        super().__init__(message, status_code=400)

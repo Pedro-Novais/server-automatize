@@ -1,3 +1,5 @@
+import re
+
 from Repository import (
     ProjectRepository,
     ProjectTypeRepository,
@@ -14,7 +16,8 @@ from CustomExceptions import (
     DatasInvalidsToChange,
     UserNotFound,
     ProjectNotFound,
-    ConflictAboutTheOwner
+    ConflictAboutTheOwner,
+    EmailsInvalidToAdd
 )
 
 from Models import (
@@ -22,13 +25,12 @@ from Models import (
     Project
 )
 
-from Core._StructureMessage import StructureMessage
-
 from pymongo.errors import PyMongoError
-
 from flask import Request, jsonify, g
 from bson import ObjectId
+
 from .utils.pipelines import create_pipeline
+from .utils.validators import validate_email
 
 class ProjectService:
     def create_project_type(request: Request, user: ObjectId) -> dict:
@@ -494,12 +496,159 @@ class ProjectService:
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
+    def get_recipients(user: ObjectId, projectId: str, typeOwner: str) -> dict:
+        try:
 
-    def get_recipient():
-        pass
+            if not typeOwner == "individual" and not typeOwner == "company" :
+                raise DatasNotSend("Dados sobre dono do projeto não foi enviado corretamente!")
 
-    def add_recipient():
-        pass
+            project_repo = ProjectRepository(g.db)
+
+            filter_project = {
+                "owner": user,
+                "code": int(projectId)
+            }
+
+            projection_project = {
+                "recipients": 1
+            }
+
+            if typeOwner == "company":
+                user_repo = UserRepository(g.db)
+
+                filter_user = {
+                    "_id": user
+                }
+
+                projection = {
+                    "boss": 1,
+                    "team": 1
+                }
+
+                user_exist = user_repo.get_user(
+                    query_filter=filter_user,
+                    projection=projection
+                )
+
+                if not user_exist:
+                    raise UserNotFound()
+                
+                if not user_exist.get("boss") or not user_exist.get("team"):
+                    raise UserWithoutPermission("Usuário não possui permissão de visualizar destinátarios!")
+                
+                filter_project["owner"] = user_exist.get("team")
+            
+            project_exist = project_repo.get(
+                query_filter=filter_project,
+                projection=projection_project
+            )
+
+            if not project_exist:
+                raise ProjectNotFound()
+            
+            return jsonify({"msg": "Destinatários listados com sucesso", "recipients": project_exist["recipients"]}), 200
+        
+        except ProjectNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserWithoutPermission as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except DatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+
+    def add_recipient(request: Request, user: ObjectId, projectId: str, typeOwner: str) -> dict:
+        try:
+            data = request.get_json()
+            emails = data.get("emails")
+
+            if not isinstance(emails, list):
+                raise DatasNotSend("Paramêtros não enviados ao servidor!")
+
+            if not typeOwner == "individual" and not typeOwner == "company":
+                raise DatasNotSend("Paramêtros não enviados ao servidor!")
+
+            project_repo = ProjectRepository(g.db)
+
+            filter_project = {
+                "owner": user,
+                "code": int(projectId)
+            }
+
+            if typeOwner == "company":
+                user_repo = UserRepository(g.db)
+
+                filter_user = {
+                    "_id": user
+                }
+
+                projection = {
+                    "boss": 1,
+                    "team": 1
+                }
+
+                user_exist = user_repo.get_user(
+                    query_filter=filter_user,
+                    projection=projection
+                )
+
+                if not user_exist:
+                    raise UserNotFound()
+                
+                if not user_exist.get("boss") or not user_exist.get("team"):
+                    raise UserWithoutPermission("Usuário não possui permissão de visualizar destinátarios!")
+                
+                filter_project["owner"] = user_exist.get("team")
+            
+            validator_emails = validate_email(emails=emails)
+
+            if validator_emails:
+                raise EmailsInvalidToAdd()
+
+            filter_update = {
+                "$addToSet":{
+                    "recipients": {
+                        "$each": emails
+                    }
+                }
+            }
+
+            project_exist = project_repo.update(
+                query_filter=filter_project,
+                update=filter_update
+            )
+
+            if not project_exist:
+                raise ProjectNotFound()
+
+            if project_exist.modified_count:
+                return jsonify({"msg": "Destinatários atualizados com sucesso"}), 200
+            else:
+                return jsonify({"msg": "Destinatário já está adicionado"}), 200
+        
+        except ProjectNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserWithoutPermission as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except DatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except EmailsInvalidToAdd as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
     def remove_recipient():
         pass
