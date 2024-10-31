@@ -6,6 +6,7 @@ from .login import login_route
 from .team import team_route
 from .project import project_route
 from .type_project import type_project_route
+from .payments import payment_route
 
 def init_routes(app):
     app.register_blueprint(user_route, url_prefix='/api/user')
@@ -14,6 +15,7 @@ def init_routes(app):
     app.register_blueprint(team_route, url_prefix='/api/team')
     app.register_blueprint(project_route, url_prefix='/api/project')
     app.register_blueprint(type_project_route, url_prefix='/api/typeproject')
+    app.register_blueprint(payment_route, url_prefix='/api/payments')
 
     @app.before_request
     def before_request():

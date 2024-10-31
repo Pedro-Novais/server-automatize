@@ -35,3 +35,7 @@ from CustomExceptions.ProjectsCustomExceptions import(
     ConflictAboutTheOwner,
     EmailsInvalidToAdd
 )
+
+from CustomExceptions.PaymentsCustomExceptions import (
+    HeaderInvalid
+)

@@ -1,12 +1,13 @@
 import re
 
+from config import KEYS
+
 from CustomExceptions import (
     UserValuesNotFound, 
     UserInvalidDataUpdate,
-    EmailsInvalidToAdd
+    EmailsInvalidToAdd,
+    HeaderInvalid
     )
-
-# Validações do usuário
 
 def validation_user_data(data: dict) -> None:
     name = data.get('name')
@@ -46,3 +47,9 @@ def validate_email(emails: list) -> dict | None:
                 "emailNotValid": email
             }
             return result_invalid
+        
+def validate_headers(key_from_request):
+    if key_from_request in KEYS:
+        return True
+     
+    raise HeaderInvalid()

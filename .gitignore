@@ -3,3 +3,6 @@ data.db
 /.vscode
 *.json
 *.pyc
+market_pay.py
+.env
+header_key.py
