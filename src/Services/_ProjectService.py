@@ -602,7 +602,7 @@ class ProjectService:
                     raise UserNotFound()
                 
                 if not user_exist.get("boss") or not user_exist.get("team"):
-                    raise UserWithoutPermission("Usuário não possui permissão de visualizar destinátarios!")
+                    raise UserWithoutPermission("Usuário não possui permissão de adicionar destinátarios!")
                 
                 filter_project["owner"] = user_exist.get("team")
             
@@ -647,11 +647,101 @@ class ProjectService:
         except EmailsInvalidToAdd as e:
             return jsonify({"error": e.message}), e.status_code
         
+        except ValueError as e:
+            return jsonify({"error": "Paramêtros não enviados ao servidor corretamnete: {}".format(str(e))}), 500
+        
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
-    def remove_recipient():
-        pass
+    def remove_recipient(request: Request, user: ObjectId, projectId: str, typeOwner: str) -> dict:
+        try:
+            data = request.get_json()
+            emails = data.get("emails")
+
+            if not isinstance(emails, list):
+                raise DatasNotSend("Paramêtros não enviados ao servidor!")
+
+            if not typeOwner == "individual" and not typeOwner == "company":
+                raise DatasNotSend("Paramêtros não enviados ao servidor!")
+
+            project_repo = ProjectRepository(g.db)
+
+            filter_project = {
+                "owner": user,
+                "code": int(projectId)
+            }
+
+            if typeOwner == "company":
+                user_repo = UserRepository(g.db)
+
+                filter_user = {
+                    "_id": user
+                }
+
+                projection = {
+                    "boss": 1,
+                    "team": 1
+                }
+
+                user_exist = user_repo.get_user(
+                    query_filter=filter_user,
+                    projection=projection
+                )
+
+                if not user_exist:
+                    raise UserNotFound()
+                
+                if not user_exist.get("boss") or not user_exist.get("team"):
+                    raise UserWithoutPermission("Usuário não possui permissão de deletar destinátarios!")
+                
+                filter_project["owner"] = user_exist.get("team")
+            
+            validator_emails = validate_email(emails=emails)
+
+            if validator_emails:
+                raise EmailsInvalidToAdd()
+
+            filter_update = {
+                "$pull":{
+                    "recipients": {
+                        "$in": emails
+                    }
+                }
+            }
+
+            project_exist = project_repo.update(
+                query_filter=filter_project,
+                update=filter_update
+            )
+
+            if not project_exist or not project_exist.matched_count:
+                raise ProjectNotFound()
+            
+            if project_exist.modified_count:
+                return jsonify({"msg": "Destinatários deletados com sucesso!"}), 200
+            else:
+                return jsonify({"msg": "Destinatários a serem deletados não existem!"}), 200
+        
+        except ProjectNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserWithoutPermission as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except UserNotFound as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except DatasNotSend as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except EmailsInvalidToAdd as e:
+            return jsonify({"error": e.message}), e.status_code
+        
+        except ValueError as e:
+            return jsonify({"error": "Paramêtros não enviados ao servidor corretamnete: {}".format(str(e))}), 406
+        
+        except Exception as e:
+            return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
     def out_sign_recipient():
         pass

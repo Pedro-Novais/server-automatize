@@ -60,6 +60,6 @@ class ConflictAboutTheOwner(ProjectException):
 class EmailsInvalidToAdd(ProjectException):
     def __init__(
             self, 
-            message: str = "Destinatário a ser adicionado possui email inválido!",
+            message: str = "Destinatário a ser atualizado possui email inválido!",
     ):
         super().__init__(message, status_code=400)

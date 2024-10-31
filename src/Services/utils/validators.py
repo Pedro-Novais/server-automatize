@@ -34,7 +34,7 @@ def validation_password(new: str) -> bool:
     
 def validate_email(emails: list) -> dict | None:
     if len(emails) == 0:
-        raise EmailsInvalidToAdd("Destinatário a ser adicionado, não foi enviado ao servidor!")
+        raise EmailsInvalidToAdd("Destinatários não foram enviados ao servidor!")
     
     regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
 

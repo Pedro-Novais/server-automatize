@@ -41,10 +41,10 @@ def post_recipients(user, projectId, typeOwner):
     response = ProjectService.add_recipient(request=request, user=user, projectId=projectId, typeOwner=typeOwner)
     return response
 
-@project_route.route('/recipients/<projectId>', methods=['PATCH'])
+@project_route.route('/recipients/<projectId>/<typeOwner>', methods=['PATCH'])
 @token_required
-def remove_recipients(user, projectId):
-    response = ProjectService.remove_recipient(user=user, projectId=projectId)
+def remove_recipients(user, projectId, typeOwner):
+    response = ProjectService.remove_recipient(request=request, user=user, projectId=projectId, typeOwner=typeOwner)
     return response
 
 @project_route.route('/<projectId>/out', methods=['DELETE'])
