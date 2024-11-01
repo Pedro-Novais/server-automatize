@@ -22,7 +22,8 @@ from CustomExceptions.TeamCustomExceptions import (
 )
 
 from CustomExceptions.OperationsDatabaseExceptions import(
-    OperationAggregationFailed
+    OperationAggregationFailed,
+    OperationsDatabaseException
 )
 
 from CustomExceptions.ProjectsCustomExceptions import(

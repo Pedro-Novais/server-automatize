@@ -12,6 +12,6 @@ def make_login():
 
 @login_route.route('/out', methods=['GET'])
 @token_required
-def make_login(user):
+def out_login(user):
     response = LoginService.sign_out(user=user)
     return response

@@ -5,20 +5,17 @@ class Plans:
             planId: str,
             namePlan: str,
             status: str,
-            start_date: str,
-            end_date: str
+            date_created: str,
     ) -> None:
         self.planId = planId,
         self.namePlan = namePlan
         self.status = status,
-        self.start_date = start_date
-        self.end_date = end_date
+        self.date_created = date_created
 
     def to_dict(self) -> dict:
         return {
             "planId": self.planId,
             "namePlan": self.namePlan,
             "status": self.status,
-            "start_date": self.start_date,
-            "end_date": self.end_date
+            "date_created": self.date_created,
         }

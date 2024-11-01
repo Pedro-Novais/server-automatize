@@ -1,3 +1,5 @@
+from config import BACK_URL
+
 class StructurePlans:
     def __init__(
             self, 
@@ -26,5 +28,6 @@ class StructurePlans:
              "free_trial": {
                 "frequency": 1,
                 "frequency_type": "months"
-            }
+            },
+            "back_url": BACK_URL
         }

@@ -8,3 +8,4 @@ from Models.InvoicesModel import Invoices
 from Models.TransactionsModel import Transactions
 from Models.PaymentMethodsModel import PaymentMethods
 from Models.PaymentLogModel import PaymentLog
+from Models.PlansModel import Plans
