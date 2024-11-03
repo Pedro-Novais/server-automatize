@@ -10,5 +10,6 @@ from .market_pay import (
 
 from .urls import (
     BACK_URL,
-    PAYMENT_URL_PREAPPROVAL
+    PAYMENT_URL_PREAPPROVAL,
+    PAYMENT_URL_PREAPPROVAL_PLAN
 )

@@ -12,6 +12,7 @@ from .utils.validators import validate_headers
 from config import (
     SDK,
     HEADER_PREVIEW,
+    PAYMENT_URL_PREAPPROVAL_PLAN,
     PAYMENT_URL_PREAPPROVAL
     )
 
@@ -58,8 +59,8 @@ class PaymentService:
             plan_data = StructurePlans(namePlan=name, pricePlan=price)
 
             response = requests.post(
-                PAYMENT_URL_PREAPPROVAL,
-                json=plan_data.to_dict(),
+                PAYMENT_URL_PREAPPROVAL_PLAN,
+                json=plan_data.to_dict(), 
                 headers=HEADER_PREVIEW
             )
 
@@ -91,3 +92,7 @@ class PaymentService:
         
         except Exception as e:  
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
+        
+
+    def create_subscriptions(user: ObjectId, request: Request) -> dict:
+        pass
