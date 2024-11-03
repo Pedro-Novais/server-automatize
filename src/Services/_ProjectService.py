@@ -221,7 +221,7 @@ class ProjectService:
 
                 }
 
-                boss = user_repo.get_user(
+                boss = user_repo.get(
                     query_filter=query, 
                     projection=projection
                     )
@@ -404,7 +404,7 @@ class ProjectService:
                     "team": 1
                 }
 
-                user_exist = user_repo.get_user(
+                user_exist = user_repo.get(
                     query_filter=filter_user,
                     projection=projection
                     )
@@ -525,7 +525,7 @@ class ProjectService:
                     "team": 1
                 }
 
-                user_exist = user_repo.get_user(
+                user_exist = user_repo.get(
                     query_filter=filter_user,
                     projection=projection
                 )
@@ -593,7 +593,7 @@ class ProjectService:
                     "team": 1
                 }
 
-                user_exist = user_repo.get_user(
+                user_exist = user_repo.get(
                     query_filter=filter_user,
                     projection=projection
                 )
@@ -683,7 +683,7 @@ class ProjectService:
                     "team": 1
                 }
 
-                user_exist = user_repo.get_user(
+                user_exist = user_repo.get(
                     query_filter=filter_user,
                     projection=projection
                 )

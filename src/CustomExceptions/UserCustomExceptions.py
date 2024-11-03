@@ -37,6 +37,13 @@ class UserDeleteWhitoutSucess(UserException):
     ) -> None:
         super().__init__(message, status_code=404)
 
+class UserNotCanBeDeleted(UserException):
+       def __init__(
+            self,
+            message: str = "Usuário não pode ser excluído pois possui pendências!"
+    ) -> None:
+        super().__init__(message, status_code=400)
+
 class UserMemberInvalid(UserException):
     def __init__(
             self,

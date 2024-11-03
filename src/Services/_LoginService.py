@@ -30,7 +30,7 @@ class LoginService():
             }
 
 
-            find_user = user_repo.get_user(
+            find_user = user_repo.get(
                 query_filter=filter
                 )
 
@@ -51,13 +51,11 @@ class LoginService():
 
             return jsonify({"msg": 'Login realizado com sucesso!', "token": token}), 200
 
-        except UserDatasNotSend as e:
-            return jsonify({"error": e.message}), e.status_code
-        
-        except UserNotFound as e:
-            return jsonify({"error": e.message}), e.status_code
-        
-        except UserCredentialsInvalids as e:
+        except (
+            UserDatasNotSend,
+            UserNotFound,
+            UserCredentialsInvalids
+            ) as e:
             return jsonify({"error": e.message}), e.status_code
         
         except Exception as e:  

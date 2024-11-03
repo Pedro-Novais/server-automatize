@@ -4,7 +4,8 @@ from CustomExceptions.UserCustomExceptions import (
     UserInvalidDataUpdate,
     UserDeleteWhitoutSucess,
     UserMemberInvalid,
-    ErrorCreatingClientFromUser
+    ErrorCreatingClientFromUser,
+    UserNotCanBeDeleted
     )
 
 from CustomExceptions.LoginCustomExceptions import (

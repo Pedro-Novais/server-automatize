@@ -4,7 +4,7 @@ import time
 from flask import jsonify, g, Request
 from bson import ObjectId
 from Models import User
-from Repository import UserRepository
+from Repository import UserRepository, UserAndTeamWithProject
 
 from auth import (
     hash_password,
@@ -19,7 +19,8 @@ from CustomExceptions import (
     UserCredentialsInvalids,
     UserDeleteWhitoutSucess,
     UserNotFound,
-    ErrorCreatingClientFromUser
+    ErrorCreatingClientFromUser,
+    UserNotCanBeDeleted
     )
 
 from .utils.validators import (
@@ -165,7 +166,7 @@ class UserService:
 
     def update_token_card(user: ObjectId, request: Request) -> dict:
         pass
-    
+
     def update_password(user: ObjectId, request: Request) -> dict:
         try:
             data = request.get_json()
@@ -233,12 +234,44 @@ class UserService:
                 '_id': user
             }
 
-            result = user_repo.delete(
-                query_filter=filter
+            user_exist = user_repo.get(query_filter=filter)
+
+            if not user_exist:
+                raise UserNotFound()
+            
+            if user_exist.get("boss"):
+                raise UserNotCanBeDeleted("Necessário excluir sua equipe para prosseguir com a deleção da conta!")
+
+            if user_exist.get("team"):
+                raise UserNotCanBeDeleted("Necessário estar sem vincúlo de equipe, para prosseguir com a deleção!")
+            
+            result_delete = None
+            projects = user_exist.get("projects")
+
+            if len(projects) == 0:
+                result_delete = user_repo.delete(query_filter=filter )
+            else:
+                user_project_repo = UserAndTeamWithProject(db=g.db, client=g.client)
+
+                filter_project = {
+                    "owner": user
+                }
+
+                result_delete = user_project_repo.delete_user_and_projects(
+                    delete_user=filter,
+                    delete_project=filter_project
+                )
+
+            # if not result_delete.deleted_count:
+            #     raise UserDeleteWhitoutSucess("Ocorreu um erro ao realizar a exclusão do usuário!")
+
+            response_delete_client = requests.delete(
+                headers=HEADER_PREVIEW,
+                url=ENDPOINTS.DELETE_CLIENT.format(id=user_exist.get("clientId"))
             )
 
-            if not result.deleted_count:
-                raise UserDeleteWhitoutSucess("Ocorreu um erro ao realizar a exclusão do usuário!")
+            if not response_delete_client.status_code == 200:
+                print("Erro ao excluir cliente do gateway de pagamentos!")
 
             return jsonify({"msg": "Usuário excluido com sucesso!"}), 200
 

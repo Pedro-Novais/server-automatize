@@ -14,6 +14,28 @@ class UserAndTeamWithProject:
         self.db = db
         self.client = client
 
+    def delete_user_and_projects(
+            self,
+            delete_user,
+            delete_project
+            ):
+         with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    self.db.project.delete_many(
+                        delete_project,
+                        session=session
+                    )
+
+                    self.db.users.delete_one(
+                        delete_user,
+                        session=session
+                    )
+
+            except PyMongoError as e:
+                raise
+
     def owner_individual(
             self,
             query_user,
