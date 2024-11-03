@@ -9,12 +9,7 @@ from Models import Plans
 
 from .utils.validators import validate_headers
 
-from config import (
-    SDK,
-    HEADER_PREVIEW,
-    PAYMENT_URL_PREAPPROVAL_PLAN,
-    PAYMENT_URL_PREAPPROVAL
-    )
+from config import ENDPOINTS, HEADER_PREVIEW
 
 from CustomExceptions import (
     HeaderInvalid,
@@ -59,7 +54,7 @@ class PaymentService:
             plan_data = StructurePlans(namePlan=name, pricePlan=price)
 
             response = requests.post(
-                PAYMENT_URL_PREAPPROVAL_PLAN,
+                ENDPOINTS.CREATE_PLAN,
                 json=plan_data.to_dict(), 
                 headers=HEADER_PREVIEW
             )

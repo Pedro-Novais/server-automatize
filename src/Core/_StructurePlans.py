@@ -1,4 +1,4 @@
-from config import BACK_URL
+from config import ENDPOINTS
 
 class StructurePlans:
     def __init__(
@@ -29,5 +29,5 @@ class StructurePlans:
                 "frequency": 1,
                 "frequency_type": "months"
             },
-            "back_url": BACK_URL
+            "back_url": ENDPOINTS.BACK_URL_TEST
         }

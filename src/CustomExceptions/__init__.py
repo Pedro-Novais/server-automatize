@@ -3,7 +3,8 @@ from CustomExceptions.UserCustomExceptions import (
     UserValuesNotFound,
     UserInvalidDataUpdate,
     UserDeleteWhitoutSucess,
-    UserMemberInvalid
+    UserMemberInvalid,
+    ErrorCreatingClientFromUser
     )
 
 from CustomExceptions.LoginCustomExceptions import (

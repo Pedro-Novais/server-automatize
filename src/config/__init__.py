@@ -6,10 +6,7 @@ from .header_key import (
 
 from .market_pay import (
     SDK, 
-    ACCESS_TOKEN_HOMOLOGATION)
-
-from .urls import (
-    BACK_URL,
-    PAYMENT_URL_PREAPPROVAL,
-    PAYMENT_URL_PREAPPROVAL_PLAN
+    ACCESS_TOKEN_HOMOLOGATION
 )
+
+from .urls import ENDPOINTS

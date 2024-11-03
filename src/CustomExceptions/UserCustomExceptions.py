@@ -43,3 +43,10 @@ class UserMemberInvalid(UserException):
             message: str = "Membro inserido já é chefe ou possui uma equipe"
     ) -> None:
         super().__init__(message, status_code=404)
+
+class ErrorCreatingClientFromUser(UserException):
+    def __init__(
+            self,
+            message: str = "Algum erro ocorreu ao criar o usuário"
+    ) -> None:
+        super().__init__(message, status_code=400)

@@ -6,7 +6,9 @@ from CustomExceptions import UserValuesNotFound
 class User:
     """Tabela dos usuários da aplicação"""
     def __init__(
-            self, 
+            self,
+            client_id: str,
+            token_card: str, 
             name: str,  
             email: str, 
             password: str,
@@ -23,6 +25,8 @@ class User:
         if not password or not isinstance(password, str):
             raise UserValuesNotFound("Password must be a non-empty string")
         
+        self.client_id = client_id
+        self.token_card = token_card
         self.name = name
         self.email = email
         self.password = password
@@ -35,6 +39,8 @@ class User:
     def to_dict(self) -> dict:
         """Converte o modelo para um dicionário, adequado para inserção no MongoDB"""
         return {
+            "clientId": self.client_id,
+            "token_card": self.token_card,
             "userName": self.name,
             "email": self.email,
             "password": self.password,

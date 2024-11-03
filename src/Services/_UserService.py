@@ -1,3 +1,5 @@
+import requests
+
 from flask import jsonify, g, Request
 from bson import ObjectId
 from Models import User
@@ -8,12 +10,15 @@ from auth import (
     check_password
 )
 
+from config import ENDPOINTS, HEADER_PREVIEW
+
 from CustomExceptions import (
     UserAlreadyRegister,
     UserInvalidDataUpdate,
     UserCredentialsInvalids,
     UserDeleteWhitoutSucess,
-    UserNotFound
+    UserNotFound,
+    ErrorCreatingClientFromUser
     )
 
 from .utils.validators import (
@@ -74,12 +79,29 @@ class UserService:
                 raise UserAlreadyRegister("Usuário já está registrado!")
 
             password_hash = hash_password(data.get("password"))
+            
+            customer_client = {
+                "email": data.get('email'),
+                "first_name": data.get("name"),
+            }
+
+            create_client = requests.post(
+                url=ENDPOINTS.CREATE_CLIENT,
+                headers=HEADER_PREVIEW,
+                json=customer_client
+            )
+            
+            response_data = create_client.json()
+            
+            if not create_client.status_code == 201:
+                raise ErrorCreatingClientFromUser()
 
             user = User(
+                client_id=response_data["id"],
                 name= data.get("name"),
                 email= data.get("email"), 
                 password= password_hash
-                )
+            )
             
             insert_user = user_repo.post(data=user.to_dict())
 
@@ -89,7 +111,8 @@ class UserService:
             return jsonify({"msg": "Usuário criado com sucesso!"}), 201
         
         except (
-            UserAlreadyRegister
+            UserAlreadyRegister,
+            ErrorCreatingClientFromUser
             ) as e:
             return jsonify({'error': e.message}), e.status_code
         
