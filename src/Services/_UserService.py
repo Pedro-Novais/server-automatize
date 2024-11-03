@@ -163,6 +163,9 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
+    def update_token_card(user: ObjectId, request: Request) -> dict:
+        pass
+    
     def update_password(user: ObjectId, request: Request) -> dict:
         try:
             data = request.get_json()
