@@ -245,11 +245,10 @@ class UserService:
             if user_exist.get("team"):
                 raise UserNotCanBeDeleted("Necessário estar sem vincúlo de equipe, para prosseguir com a deleção!")
             
-            result_delete = None
             projects = user_exist.get("projects")
 
             if len(projects) == 0:
-                result_delete = user_repo.delete(query_filter=filter )
+                user_repo.delete(query_filter=filter )
             else:
                 user_project_repo = UserAndTeamWithProject(db=g.db, client=g.client)
 
@@ -257,7 +256,7 @@ class UserService:
                     "owner": user
                 }
 
-                result_delete = user_project_repo.delete_user_and_projects(
+                user_project_repo.delete_user_and_projects(
                     delete_user=filter,
                     delete_project=filter_project
                 )

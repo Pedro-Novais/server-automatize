@@ -71,7 +71,7 @@ class TeamService:
                 'email': 1
             }
 
-            boss_exist = user_repo.get_user(query_filter=filter_user, projection=projection)
+            boss_exist = user_repo.get(query_filter=filter_user, projection=projection)
 
             if not boss_exist:
                 raise BossTeamDoesExist("Id do boss da equipe não foi identificado em nosso banco de dados")
@@ -166,7 +166,7 @@ class TeamService:
                 "_id": user
             }
 
-            boss = user_repo.get_user(query_filter=query_user)
+            boss = user_repo.get(query_filter=query_user)
 
             if not boss:
                 raise UserNotFound()
@@ -232,7 +232,7 @@ class TeamService:
                 "_id": user
             }
 
-            boss = user_repo.get_user(query_filter=query_user)
+            boss = user_repo.get(query_filter=query_user)
 
             if not boss:
                 raise UserNotFound()
@@ -279,7 +279,7 @@ class TeamService:
                 "_id": user
             }
 
-            boss = user_repo.get_user(query_filter=query_user)
+            boss = user_repo.get(query_filter=query_user)
 
             if not boss:
                 raise UserNotFound()
@@ -339,7 +339,7 @@ class TeamService:
                 ]
             }
 
-            users_querys = list(user_repo.get_many_users(
+            users_querys = list(user_repo.get_many(
                 query_filter=filter_many_users
             ))
 
@@ -460,7 +460,7 @@ class TeamService:
                 "_id": user
             }
 
-            boss = user_repo.get_user(query_filter=filter_boss)
+            boss = user_repo.get(query_filter=filter_boss)
 
             if not boss:
                 raise UserNotFound("Usuário não foi encontrado!")
@@ -472,7 +472,7 @@ class TeamService:
                 "_id": ObjectId(member)
             }
 
-            member_search = user_repo.get_user(query_filter=query_member)
+            member_search = user_repo.get(query_filter=query_member)
 
             if not member_search:
                 raise UserNotFound("Membro não está cadastrado no sistema!")
