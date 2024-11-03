@@ -9,11 +9,11 @@ from auth import (
 )
 
 from CustomExceptions import (
-    UserValuesNotFound,
     UserAlreadyRegister,
     UserInvalidDataUpdate,
     UserCredentialsInvalids,
-    UserDeleteWhitoutSucess
+    UserDeleteWhitoutSucess,
+    UserNotFound
     )
 
 from .utils.validators import (
@@ -35,20 +35,21 @@ class UserService:
                 "created_at": 0,
                 "last_update": 0,
                 "_id": 0,
-                "team": 0
+                "team": 0,
+                "projects": 0
             }
 
-            datas = user_repo.get_user(
+            user_exist = user_repo.get(
                 query_filter=filter,
                 projection=projection
             )
 
-            if not datas:
-                raise UserValuesNotFound("Erro ao selecionar os dados do usuário!")
+            if not user_exist:
+                raise UserNotFound()
             
-            return jsonify({'response': datas}), 200
+            return jsonify({'response': user_exist}), 200
         
-        except UserValuesNotFound as e:
+        except UserNotFound as e:
             return jsonify({"error": e.message}), e.status_code
         
         except Exception as e:
@@ -57,12 +58,18 @@ class UserService:
     def create_user(request: Request) -> dict:
         try:
             data = request.get_json()
+
             validation_user_data(data)
             validation_password(data.get('password'))
 
             user_repo = UserRepository(g.db)
 
-            email_exist = user_repo.get_user({"email": data.get('email')})
+            query_email_exist = {
+                "email": data.get('email')
+            }
+
+            email_exist = user_repo.get(query_filter=query_email_exist)
+
             if email_exist is not None:
                 raise UserAlreadyRegister("Usuário já está registrado!")
 
@@ -74,18 +81,17 @@ class UserService:
                 password= password_hash
                 )
             
-            user_repo.insert_user(user.to_dict())
+            insert_user = user_repo.post(data=user.to_dict())
 
-            return jsonify({"msg": "User created with sucess"}), 201
+            if not insert_user.inserted_id:
+                raise UserNotFound("Ocorreu algum erro ao realizar o registro do usuário!")
+
+            return jsonify({"msg": "Usuário criado com sucesso!"}), 201
         
-        except UserInvalidDataUpdate as e:
+        except (
+            UserAlreadyRegister
+            ) as e:
             return jsonify({'error': e.message}), e.status_code
-        
-        except UserValuesNotFound as e:
-            return jsonify({"error": e.message}), e.status_code
-        
-        except UserAlreadyRegister as e:
-            return jsonify({"error": e.message}), e.status_code
         
         except Exception as e:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
@@ -101,10 +107,13 @@ class UserService:
             }
             update = {"$set": data}
 
-            user_repo.update_user(
+            user_update = user_repo.update(
                 query_filter=filter, 
-                update_values=update
+                update=update
                 )
+            
+            if not user_update.modified_count:
+                return jsonify({"msg": "Usuário não foi atualizado!"}), 200
             
             return jsonify({"msg": "Usuário atualizado com sucesso"}), 200
         
@@ -129,7 +138,7 @@ class UserService:
                 "_id": user
             }
 
-            find_user = user_repo.get_user(
+            find_user = user_repo.get(
                 query_filter=filter
             )
 
@@ -143,23 +152,26 @@ class UserService:
 
             password_hash_new = hash_password(password=password_new)
 
-            update = {
+            update_value = {
                 "$set": {
                     "password": password_hash_new
                 }
             }
 
-            user_repo.update_user(
+            user_update = user_repo.update(
                 query_filter=filter,
-                update_values=update
+                update=update_value
                 )
 
+            if not user_update:
+                raise UserInvalidDataUpdate("Ocorreu algum erro ao atualizar a senha do usuário!")
+            
             return jsonify({"msg": "Senha atualizada com sucesso"}), 200
         
-        except UserCredentialsInvalids as e:
-            return jsonify({'error': e.message}), e.status_code
-        
-        except UserInvalidDataUpdate as e:
+        except (
+            UserCredentialsInvalids,
+            UserInvalidDataUpdate
+            ) as e:
             return jsonify({'error': e.message}), e.status_code
         
         except Exception as e:
@@ -175,7 +187,7 @@ class UserService:
                 '_id': user
             }
 
-            result = user_repo.delete_user(
+            result = user_repo.delete(
                 query_filter=filter
             )
 

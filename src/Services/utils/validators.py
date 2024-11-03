@@ -24,14 +24,8 @@ def validation_user_data(data: dict) -> None:
 def validation_password(new: str) -> bool:
     regex = r'^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).*$'
               
-    if not new:
-        raise UserInvalidDataUpdate("Senha não está no padrão exigido")
-    
-    if len(new) < 7:
-        raise UserInvalidDataUpdate("Senha não está no padrão exigido")
-
-    if not re.match(regex, new):
-        raise UserInvalidDataUpdate("Senha não está no padrão exigido")
+    if not new or len(new) < 7 or not re.match(regex, new):
+        raise UserInvalidDataUpdate("Senha não está no padrão exigido!")
     
 def validate_email(emails: list) -> dict | None:
     if len(emails) == 0:
