@@ -8,10 +8,10 @@ class User:
     def __init__(
             self,
             client_id: str,
-            token_card: str, 
             name: str,  
             email: str, 
             password: str,
+            token_card: str | None = None, 
             boss: bool = False,
             project: list = [],
             team: str = None,

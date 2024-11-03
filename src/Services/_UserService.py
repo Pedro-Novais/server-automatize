@@ -1,4 +1,5 @@
 import requests
+import time
 
 from flask import jsonify, g, Request
 from bson import ObjectId
@@ -92,7 +93,7 @@ class UserService:
             )
             
             response_data = create_client.json()
-            
+
             if not create_client.status_code == 201:
                 raise ErrorCreatingClientFromUser()
 
@@ -103,10 +104,29 @@ class UserService:
                 password= password_hash
             )
             
-            insert_user = user_repo.post(data=user.to_dict())
+            MAX_ATTEMPTS = 3  
+            cont = 0  
 
-            if not insert_user.inserted_id:
-                raise UserNotFound("Ocorreu algum erro ao realizar o registro do usuário!")
+            while cont < MAX_ATTEMPTS:
+                try:
+                 
+                    insert_user = user_repo.post(data=user.to_dict())
+
+                    if insert_user.inserted_id:
+                        print("Usuário inserido com sucesso!")
+                        break 
+
+                except Exception as e:
+                    print(f"Ocorreu um erro durante a inserção: {e}")
+
+                cont += 1
+
+                if cont < MAX_ATTEMPTS:
+                    print(f"Tentativa {cont} falhou, tentando novamente...")
+                    time.sleep(2)  
+                else:
+                  
+                    raise UserNotFound("Ocorreu algum erro ao realizar o registro do usuário após várias tentativas!")
 
             return jsonify({"msg": "Usuário criado com sucesso!"}), 201
         
