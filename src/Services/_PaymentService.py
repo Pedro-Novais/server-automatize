@@ -94,5 +94,5 @@ class PaymentService:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
         
 
-    def create_subscriptions(user: ObjectId, request: Request) -> dict:
+    def create_subscription(user: ObjectId, request: Request) -> dict:
         pass
