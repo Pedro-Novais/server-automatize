@@ -37,7 +37,7 @@ def update_card_token(userId):
 @user_route.route('/card/<cardId>', methods=['DELETE'])
 @token_required 
 def delete_card_token(userId, cardId):
-    response = UserService.delete_token_card(user=userId, cardId=cardId, request=request)
+    response = UserService.delete_token_card(user=userId, cardId=cardId)
     return response
 
 @user_route.route('/updatepassword', methods=['PATCH'])

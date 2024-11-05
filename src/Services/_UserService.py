@@ -3,6 +3,8 @@ import time
 
 from flask import jsonify, g, Request
 from bson import ObjectId
+from bson.errors import InvalidId
+
 from Models import User, Cards
 
 from config import ENDPOINTS, HEADER_PREVIEW
@@ -212,7 +214,6 @@ class UserService:
     def update_token_card(user: ObjectId, request: Request) -> dict:
         try:
             user_repo = UserRepository(db=g.db)
-            card_repo = CardsClientsRepository(db=g.db)
             user_card_repo = UserAndPaymentsRepository(db=g.db, client=g.client)
 
             data = request.get_json()
@@ -297,10 +298,77 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
-    def delete_token_card(user: ObjectId, cardId: str, request: Request) -> dict:
+    def delete_token_card(user: ObjectId, cardId: str) -> dict:
         try:
-            pass
+            card_repo = CardsClientsRepository(db=g.db)
+            user_card_repo = UserAndPaymentsRepository(
+                db=g.db,
+                client=g.client
+            )
 
+            filter_card = {
+                "owner": user,
+                "_id": ObjectId(cardId)
+            }
+
+            projection_card = {
+                "customer_id": 1,
+                "token": 1
+            }
+
+            card_exist = card_repo.get(
+                query_filter=filter_card,
+                projection=projection_card
+            )
+
+            if not card_exist:
+                raise CardsNotFound("Cartão não foi encontrado em nossa base de dados para realizar a exclusão!")
+            
+            client_id = card_exist.get("customer_id")[0]
+            token_card = card_exist.get("token")
+
+            response_delete = requests.delete(
+                url=ENDPOINTS.CARD_ACTION.format(
+                    customer_id = client_id,
+                    id = token_card
+                ),
+                headers=HEADER_PREVIEW
+            )
+
+            if not response_delete.status_code == 200 and not response_delete.status_code == 201:
+                print("Erro ao deletar cartão do cliente no gateway de pagamentos")
+                raise ErrorToSaveData("Algum erro ocorreu ao deletar o token do cartão no gatewy de pagamentos")
+
+            filter_user_update = {
+                "_id": user
+            }
+
+            update_user = {
+                "$pull":{
+                    "token_card": ObjectId(cardId)
+                }
+            }
+
+            result_operations = user_card_repo.update_user_and_delete_card(
+                query_user=filter_user_update,
+                update_user=update_user,
+                delete_card=filter_card
+            )
+
+            if not result_operations["user_update"] or not result_operations["card_delete"]:
+                raise ErrorToSaveData("Erro ao atualizar usuário excluindo cartão/deletar cartão do banco de dados!")
+            
+            return jsonify({"msg": "Operação realizada com sucesso!"}), 200
+        
+        except (
+            CardsNotFound,
+            ) as e:
+            return jsonify({'error': e.message}), e.status_code
+        
+        except InvalidId as e:
+            print(f"Erro: {str(e)}")
+            return jsonify({'error': "Ocorreu algum erro inesperado ao validar o id do cartão! error: {err}".format(err=str(e))}), 500
+        
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 

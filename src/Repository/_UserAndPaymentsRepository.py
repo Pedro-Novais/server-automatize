@@ -39,3 +39,32 @@ class UserAndPaymentsRepository:
 
             except PyMongoError as e:
                 raise
+
+    def update_user_and_delete_card(
+            self,
+            query_user,
+            update_user,
+            delete_card
+            ):
+         with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    result_delete = self.db.cardsPayments.delete_one(
+                        delete_card,
+                        session=session
+                    )
+
+                    result_update = self.db.users.update_one(
+                        query_user,
+                        update_user,
+                        session=session
+                    )
+
+                return {
+                    "user_update": result_update.modified_count,  
+                    "card_delete": result_delete.deleted_count   
+                }
+
+            except PyMongoError as e:
+                raise
