@@ -26,8 +26,8 @@ class StructurePlans:
                 "billing_day": 20
             },
              "free_trial": {
-                "frequency": 1,
-                "frequency_type": "months"
+                "frequency": 7,
+                "frequency_type": "days"
             },
             "back_url": ENDPOINTS.BACK_URL_TEST
         }

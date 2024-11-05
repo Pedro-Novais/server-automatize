@@ -47,6 +47,7 @@ class PaymentService:
 
             name = data.get("name")
             price = float(data.get("price"))
+            details = data.get("details")
 
             if not name or not price:
                 raise DatasNotSend()
@@ -67,8 +68,10 @@ class PaymentService:
             plan_final = Plans(
                 planId= response_data["id"],
                 namePlan=response_data["reason"],
+                auto_recurring=response_data["auto_recurring"],
                 status=response_data["status"],
-                date_created=response_data["date_created"]
+                date_created=response_data["date_created"],
+                details=details
             )
             
             result = plan_repo.post(data=plan_final.to_dict())
