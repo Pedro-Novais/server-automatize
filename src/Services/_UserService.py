@@ -33,7 +33,8 @@ from CustomExceptions import (
     UserValuesNotFound,
     ErrorCreatingClientFromUser,
     UserNotCanBeDeleted,
-    ErrorToSaveData
+    ErrorToSaveData,
+    CardsNotFound
 )
 
 
@@ -173,6 +174,41 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
+    def get_token_card(user: ObjectId) -> dict:
+        try:
+            card_repo = CardsClientsRepository(db=g.db)
+
+            query_card = {
+                "owner": user
+            }
+
+            projection = {
+                "owner": 0,
+                "token": 0,
+                "customer_id": 0
+            }
+
+            cards_get = list(card_repo.get_many(
+                query_filter=query_card,
+                projection=projection
+            ))
+            
+            if len(cards_get) == 0:
+                raise CardsNotFound("Nenhum cartão foi encontrado")
+            
+            for card in cards_get:
+                card["_id"] = str(card["_id"])
+
+            return jsonify({"msg": "Operação realizada com sucesso!", "cards": cards_get}), 200
+        
+        except (
+            CardsNotFound,
+            ) as e:
+            return jsonify({'error': e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
+         
     def update_token_card(user: ObjectId, request: Request) -> dict:
         try:
             user_repo = UserRepository(db=g.db)
@@ -258,6 +294,13 @@ class UserService:
             ) as e:
             return jsonify({'error': e.message}), e.status_code
         
+        except Exception as e:
+            return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
+
+    def delete_token_card(user: ObjectId, cardId: str, request: Request) -> dict:
+        try:
+            pass
+
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 

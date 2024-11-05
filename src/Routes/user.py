@@ -22,10 +22,22 @@ def update(userId):
     response = UserService.update_geral(user=userId, request=request)
     return response
 
+@user_route.route('/card', methods=['GET'])
+@token_required 
+def get_card_token(userId):
+    response = UserService.get_token_card(user=userId)
+    return response
+
 @user_route.route('/card', methods=['PATCH'])
 @token_required 
 def update_card_token(userId):
     response = UserService.update_token_card(user=userId, request=request)
+    return response
+
+@user_route.route('/card/<cardId>', methods=['DELETE'])
+@token_required 
+def delete_card_token(userId, cardId):
+    response = UserService.delete_token_card(user=userId, cardId=cardId, request=request)
     return response
 
 @user_route.route('/updatepassword', methods=['PATCH'])

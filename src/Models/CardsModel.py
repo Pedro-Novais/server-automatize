@@ -29,7 +29,7 @@ class Cards:
 
     def to_dict(self) -> dict:
         return {
-            "userId": self.userId,
+            "owner": self.userId,
             "customer_id": self.customer_id,
             "token":  self.token, 
             "last_four_digits": self.last_four_digits,  
