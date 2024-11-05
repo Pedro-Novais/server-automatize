@@ -14,3 +14,10 @@ class HeaderInvalid(PaymentsExceptions):
             message: str = "Acesso negado!",
     ):
         super().__init__(message, status_code=403)
+
+class ErrorToSaveData(PaymentsExceptions):
+    def __init__(
+            self, 
+            message: str = "Erro ao salvar dados no gateway de pagamentos!",
+    ):
+        super().__init__(message, status_code=400)

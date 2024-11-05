@@ -11,7 +11,7 @@ class User:
             name: str,  
             email: str, 
             password: str,
-            token_card: str | None = None, 
+            token_card: list = [], 
             boss: bool = False,
             project: list = [],
             team: str = None,

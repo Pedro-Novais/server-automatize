@@ -5,3 +5,5 @@ from Repository._ProjectTypeRepository import ProjectTypeRepository
 from Repository._ProjectRepository import ProjectRepository
 from Repository._UserAndTeamWithProjectRepository import UserAndTeamWithProject
 from Repository._PlansRepository import PlansRepository
+from Repository._CardClientsRepository import CardsClientsRepository
+from Repository._UserAndPaymentsRepository import UserAndPaymentsRepository

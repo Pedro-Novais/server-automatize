@@ -3,15 +3,26 @@ import time
 
 from flask import jsonify, g, Request
 from bson import ObjectId
-from Models import User
-from Repository import UserRepository, UserAndTeamWithProject
+from Models import User, Cards
+
+from config import ENDPOINTS, HEADER_PREVIEW
 
 from auth import (
     hash_password,
     check_password
 )
 
-from config import ENDPOINTS, HEADER_PREVIEW
+from .utils.validators import (
+    validation_user_data,
+    validation_password
+)
+
+from Repository import (
+    UserRepository, 
+    UserAndTeamWithProject, 
+    CardsClientsRepository, 
+    UserAndPaymentsRepository
+)
 
 from CustomExceptions import (
     UserAlreadyRegister,
@@ -19,14 +30,12 @@ from CustomExceptions import (
     UserCredentialsInvalids,
     UserDeleteWhitoutSucess,
     UserNotFound,
+    UserValuesNotFound,
     ErrorCreatingClientFromUser,
-    UserNotCanBeDeleted
-    )
+    UserNotCanBeDeleted,
+    ErrorToSaveData
+)
 
-from .utils.validators import (
-    validation_user_data,
-    validation_password
-    )
 
 class UserService:
     def get_user(user: ObjectId) -> dict:
@@ -165,7 +174,92 @@ class UserService:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
     def update_token_card(user: ObjectId, request: Request) -> dict:
-        pass
+        try:
+            user_repo = UserRepository(db=g.db)
+            card_repo = CardsClientsRepository(db=g.db)
+            user_card_repo = UserAndPaymentsRepository(db=g.db, client=g.client)
+
+            data = request.get_json()
+
+            if not data["tokenCard"]:
+                raise UserValuesNotFound("Dados não foram enviados corretamente para o servidor!")
+
+            query_user = {
+                "_id": user
+            }
+
+            projection = {
+                "clientId": 1
+            }
+
+            user_exist = user_repo.get(
+                query_filter=query_user,
+                projection=projection
+                )
+            
+            if not user_exist:
+                raise UserNotFound()
+            
+            id_gateway = user_exist.get("clientId")
+            if not id_gateway:
+                raise UserValuesNotFound("Dados do usuário não foi enviados ao parceiro de gateway")
+            
+            json_send = {
+                "token": data["tokenCard"]
+            }
+
+            add_card_at_gateway = requests.post(
+                url=ENDPOINTS.CARD.format(customer_id=id_gateway),
+                headers=HEADER_PREVIEW,
+                json=json_send
+            )
+
+            if not add_card_at_gateway.status_code == 201 and not add_card_at_gateway.status_code == 200:
+                print("Erro ao salvar cartão do cliente no gateway de pagamentos")
+                raise ErrorToSaveData("Algum erro ocorreu ao salvar o token do cartão no gatewy de pagamentos")
+            
+            response_data = add_card_at_gateway.json()
+
+            card = Cards(
+                userId=user,
+                customer_id=response_data.get("customer_id"),
+                token=response_data.get("id"),
+                last_four_digits=response_data.get("last_four_digits"),
+                expiration_month=response_data.get("expiration_month"),
+                expiration_year=response_data.get("expiration_year"),
+                payment_method_id=response_data.get("payment_method", {}).get("id"),
+                thumbnail=response_data.get("payment_method", {}).get("thumbnail"),
+                cardholder_name=response_data.get("cardholder", {}).get("name"),
+                cardholder_document_type=response_data.get("cardholder", {}).get("identification", {}).get("type"),
+                cardholder_document_number=response_data.get("cardholder", {}).get("identification", {}).get("number")
+            )
+
+            update_user = {
+                "$push":{
+                    "token_card": None
+                }
+            }
+
+            result_operations = user_card_repo.update_user_and_create_card(
+                query_user=query_user,
+                update_user=update_user,
+                create_card=card.to_dict()
+            )
+
+            if not result_operations["user_update"] or not result_operations["card_inserted_id"]:
+                raise ErrorToSaveData("Erro ao atualizar usuário com novo cartão/salvar informações do cartão no banco de dados!")
+
+            return jsonify({"msg": "Cartão adicionado com sucesso"}), 200
+        
+        except (
+            UserValuesNotFound,
+            UserNotFound,
+            ErrorToSaveData
+            ) as e:
+            return jsonify({'error': e.message}), e.status_code
+        
+        except Exception as e:
+            return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
     def update_password(user: ObjectId, request: Request) -> dict:
         try:
@@ -260,9 +354,6 @@ class UserService:
                     delete_user=filter,
                     delete_project=filter_project
                 )
-
-            # if not result_delete.deleted_count:
-            #     raise UserDeleteWhitoutSucess("Ocorreu um erro ao realizar a exclusão do usuário!")
 
             response_delete_client = requests.delete(
                 headers=HEADER_PREVIEW,

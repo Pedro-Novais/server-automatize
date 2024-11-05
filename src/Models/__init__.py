@@ -9,3 +9,4 @@ from Models.TransactionsModel import Transactions
 from Models.PaymentMethodsModel import PaymentMethods
 from Models.PaymentLogModel import PaymentLog
 from Models.PlansModel import Plans
+from Models.CardsModel import Cards

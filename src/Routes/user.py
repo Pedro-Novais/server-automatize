@@ -22,7 +22,13 @@ def update(userId):
     response = UserService.update_geral(user=userId, request=request)
     return response
 
-@user_route.route('/updatePassword', methods=['PATCH'])
+@user_route.route('/card', methods=['PATCH'])
+@token_required 
+def update_card_token(userId):
+    response = UserService.update_token_card(user=userId, request=request)
+    return response
+
+@user_route.route('/updatepassword', methods=['PATCH'])
 @token_required 
 def update_password(userId):
     response = UserService.update_password(user=userId, request=request)
