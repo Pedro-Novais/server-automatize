@@ -5,6 +5,12 @@ from auth.middleware import token_required
 
 payment_route = Blueprint('payments', __name__)
 
+@payment_route.route('/plans', methods=['GET'])
+@token_required
+def get_plan(userId):
+    response = PaymentService.get_plan(user=userId)
+    return response
+
 @payment_route.route('/plans', methods=['POST'])
 @token_required
 def create_plan(userId):
@@ -15,4 +21,10 @@ def create_plan(userId):
 @token_required
 def create_subscription(userId):
     response = PaymentService.create_subscription(user=userId, request=request)
+    return response
+
+@payment_route.route('/subscriptions/<typeSubscription>', methods=['DELETE'])
+@token_required
+def cancel_subscription(userId, typeSubscription):
+    response = PaymentService.cancel_subscription(user=userId, request=request)
     return response

@@ -18,14 +18,22 @@ from CustomExceptions import (
 )
 
 class PaymentService:
-    def get_plan(user: ObjectId, request: Request):
+    def get_plan(user: ObjectId) -> dict:
         try:
+            plan_repo = PlansRepository(db=g.db)
+
+            plans = list(plan_repo.get_many(query_filter={},))
             
-            pass
+            for plan in plans:
+                plan["_id"] = str(plan["_id"])
+
+            if len(plans) == 0:
+                raise DatasNotSend("Não há planos cadastrados na base de dados!")
+
+            return jsonify({"msg": 'Operação realizada com sucesso!', "plans": plans}), 200
         
         except (
-            HeaderInvalid, 
-            DatasNotSend
+            DatasNotSend,
             ) as e:
             return jsonify({"error": e.message}), e.status_code
         
@@ -93,4 +101,7 @@ class PaymentService:
         
 
     def create_subscription(user: ObjectId, request: Request) -> dict:
+        pass
+
+    def cancel_subscription(user: ObjectId, ) -> dict:
         pass
