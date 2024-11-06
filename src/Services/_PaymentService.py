@@ -22,7 +22,14 @@ class PaymentService:
         try:
             plan_repo = PlansRepository(db=g.db)
 
-            plans = list(plan_repo.get_many(query_filter={},))
+            projection = {
+                "planId": 0
+            }
+
+            plans = list(plan_repo.get_many(
+                query_filter={}, 
+                projection=projection
+                ))
             
             for plan in plans:
                 plan["_id"] = str(plan["_id"])
