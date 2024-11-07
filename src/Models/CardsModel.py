@@ -13,7 +13,8 @@ class Cards:
             thumbnail: str,
             cardholder_name: str,
             cardholder_document_type: str | None,
-            cardholder_document_number: str | None
+            cardholder_document_number: str | None,
+            default: bool = False,
             ) -> None:
         self.userId = userId
         self.customer_id = customer_id,
@@ -26,6 +27,7 @@ class Cards:
         self.cardholder_name = cardholder_name
         self.cardholder_document_type = cardholder_document_type
         self.cardholder_document_number = cardholder_document_number
+        self.default = default
 
     def to_dict(self) -> dict:
         return {
@@ -39,5 +41,6 @@ class Cards:
             "thumbnail": self.thumbnail,  
             "cardholder_name": self.cardholder_name, 
             "cardholder_document_type": self.cardholder_document_type,
-            "cardholder_document_number": self.cardholder_document_number 
+            "cardholder_document_number": self.cardholder_document_number,
+            "default": self.default 
         }

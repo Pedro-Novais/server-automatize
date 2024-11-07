@@ -211,7 +211,7 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
          
-    def update_token_card(user: ObjectId, request: Request) -> dict:
+    def create_token_card(user: ObjectId, request: Request) -> dict:
         try:
             user_repo = UserRepository(db=g.db)
             user_card_repo = UserAndPaymentsRepository(db=g.db, client=g.client)
@@ -226,7 +226,8 @@ class UserService:
             }
 
             projection = {
-                "clientId": 1
+                "clientId": 1,
+                "token_card": 1
             }
 
             user_exist = user_repo.get(
@@ -237,6 +238,10 @@ class UserService:
             if not user_exist:
                 raise UserNotFound()
             
+            default = False
+            if not user_exist.get("token_card") or len(user_exist.get("token_card")) == 0:
+                default = True
+
             id_gateway = user_exist.get("clientId")
             if not id_gateway:
                 raise UserValuesNotFound("Dados do usuário não foi enviados ao parceiro de gateway")
@@ -268,7 +273,8 @@ class UserService:
                 thumbnail=response_data.get("payment_method", {}).get("thumbnail"),
                 cardholder_name=response_data.get("cardholder", {}).get("name"),
                 cardholder_document_type=response_data.get("cardholder", {}).get("identification", {}).get("type"),
-                cardholder_document_number=response_data.get("cardholder", {}).get("identification", {}).get("number")
+                cardholder_document_number=response_data.get("cardholder", {}).get("identification", {}).get("number"),
+                default=default
             )
 
             update_user = {
@@ -298,6 +304,9 @@ class UserService:
         except Exception as e:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
+    def update_token_card(user: ObjectId, cardId: str) -> dict:
+        pass
+    
     def delete_token_card(user: ObjectId, cardId: str) -> dict:
         try:
             card_repo = CardsClientsRepository(db=g.db)

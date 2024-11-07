@@ -28,10 +28,16 @@ def get_card_token(userId):
     response = UserService.get_token_card(user=userId)
     return response
 
-@user_route.route('/card', methods=['PATCH'])
+@user_route.route('/card', methods=['POST'])
 @token_required 
-def update_card_token(userId):
-    response = UserService.update_token_card(user=userId, request=request)
+def create_card_token(userId):
+    response = UserService.create_token_card(user=userId, request=request)
+    return response
+
+@user_route.route('/card/<cardId>', methods=['PATCH'])
+@token_required 
+def update_card_token(userId, cardId):
+    response = UserService.update_token_card(user=userId, cardId=cardId)
     return response
 
 @user_route.route('/card/<cardId>', methods=['DELETE'])

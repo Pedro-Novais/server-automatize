@@ -14,7 +14,8 @@ class User:
             token_card: list = [], 
             boss: bool = False,
             project: list = [],
-            team: str = None,
+            plan_id: ObjectId | None = None, 
+            team: str | None = None,
             created_at: str = datetime.now(),
             last_update: str = datetime.now(),
             ) -> None:
@@ -33,6 +34,7 @@ class User:
         self.team = team
         self.boss = boss
         self.project = project
+        self.plan_id = plan_id
         self.created_at = created_at
         self.last_update = last_update
 
@@ -47,6 +49,7 @@ class User:
             "team": self.team,
             "boss": self.boss,
             "projects": self.project,
+            "plan_id": self.plan_id,
             "created_at:": self.created_at,
             "last_update": self.last_update,
         }
