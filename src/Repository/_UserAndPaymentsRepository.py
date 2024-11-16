@@ -68,3 +68,34 @@ class UserAndPaymentsRepository:
 
             except PyMongoError as e:
                 raise
+
+    def update_user_and_create_subscription(
+            self,
+            query_user,
+            update_user,
+            create_subscription
+            ):
+         with self.client.start_session() as session:
+            try:
+                with session.start_transaction():
+
+                    result_create = self.db.subscriptions.insert_one(
+                        create_subscription,
+                        session=session
+                    )
+
+                    update_user["subscriptions"] = result_create.inserted_id
+
+                    result_update = self.db.users.update_one(
+                        query_user,
+                        update_user,
+                        session=session
+                    )
+
+                return {
+                    "user_update": result_update.modified_count,  
+                    "subscription_insert": result_create.inserted_id   
+                }
+
+            except PyMongoError as e:
+                raise

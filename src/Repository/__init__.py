@@ -7,3 +7,4 @@ from Repository._UserAndTeamWithProjectRepository import UserAndTeamWithProject
 from Repository._PlansRepository import PlansRepository
 from Repository._CardClientsRepository import CardsClientsRepository
 from Repository._UserAndPaymentsRepository import UserAndPaymentsRepository
+from Repository._SubscriptionsRepository import SubscriptionsRepository

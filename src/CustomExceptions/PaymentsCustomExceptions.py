@@ -28,3 +28,10 @@ class CardsNotFound(PaymentsExceptions):
             message: str = "Nenhum cartão foi encontrado!",
     ):
         super().__init__(message, status_code=404)
+
+class PlanNotFound(PaymentsExceptions):
+    def __init__(
+            self, 
+            message: str = "Plano selecionado não foi encontrado!",
+    ):
+        super().__init__(message, status_code=404)
