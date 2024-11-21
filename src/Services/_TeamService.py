@@ -93,12 +93,12 @@ class TeamService:
             if team_exist:
                 raise TeamAlreadyExist("Nome informado para sua equipe já está em uso!") 
 
-            member_boss = Members(
-                id_member=user,
-                name=boss_exist.get('userName'),
-                email=boss_exist.get('email'),
-                boss=True
-            )
+            # member_boss = Members(
+            #     id_member=user,
+            #     name=boss_exist.get('userName'),
+            #     email=boss_exist.get('email'),
+            #     boss=True
+            # )
 
             team = Team(
                 teamName= data.get('name'),

@@ -744,4 +744,5 @@ class ProjectService:
             return jsonify({"error": "Internal server error: {}".format(str(e))}), 500
 
     def out_sign_recipient():
+        """Método que fará o proprio destinatario sair da assinatura de receber os emails"""
         pass

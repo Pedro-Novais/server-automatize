@@ -439,7 +439,6 @@ class UserService:
             return jsonify({"error": "Erro ao atualizar dados do usuário: {}".format(str(e))}), 500
 
     def delete_user(user: ObjectId) -> dict:
-        """Atualizar esse  método para realizar a remoção do id excluido de algum time, projetos, etc"""
         try:
 
             user_repo = UserRepository(g.db)
